@@ -7,8 +7,11 @@ export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
     path: "prisma/migrations",
+    seed: "npx ts-node prisma/seed.ts",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    // Migrations need a direct (non-pooled) connection — Supabase's pgbouncer
+    // transaction-mode pooler doesn't support the DDL/prepared statements Migrate uses.
+    url: process.env["DIRECT_URL"] ?? process.env["DATABASE_URL"],
   },
 });

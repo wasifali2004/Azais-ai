@@ -16,5 +16,5 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true
   },
-  "exclude": ["node_modules", "dist", "generated", "prisma7.config.ts"]
+  "exclude": ["node_modules", "dist", "generated", "prisma", "prisma7.config.ts"]
 }
