@@ -1,0 +1,204 @@
+{
+  "nav": {
+    "video": "Vídeo",
+    "image": "Imagen",
+    "history": "Historial",
+    "pricing": "Precios",
+    "credits": "créditos",
+    "signIn": "Iniciar sesión",
+    "startFree": "Empezar gratis",
+    "toggleMenu": "Abrir menú"
+  },
+  "footer": {
+    "tagline": "Generación cinematográfica de vídeo e imagen, creada para quienes terminan lo que empiezan.",
+    "columns": {
+      "product": "Producto",
+      "company": "Empresa",
+      "legal": "Legal"
+    },
+    "links": {
+      "videoGeneration": "Generación de vídeo",
+      "imageGeneration": "Generación de imágenes",
+      "pricing": "Precios",
+      "history": "Historial",
+      "about": "Nosotros",
+      "careers": "Empleo",
+      "contact": "Contacto",
+      "terms": "Términos",
+      "privacy": "Privacidad"
+    },
+    "copyright": "© {year} AzaisAi. Todos los derechos reservados.",
+    "madeFor": "Hecho para creadores que sacan las cosas adelante."
+  },
+  "auth": {
+    "login": {
+      "title": "Inicia sesión en tu cuenta",
+      "subtitle": "Inicia sesión en tu cuenta.",
+      "submit": "Continuar con correo electrónico",
+      "submitLoading": "Iniciando sesión…",
+      "google": "Continuar con Google",
+      "noAccount": "¿No tienes una cuenta?",
+      "signUpLink": "Regístrate"
+    },
+    "signup": {
+      "title": "Crea tu cuenta",
+      "subtitle": "Crea una cuenta nueva para empezar.",
+      "submit": "Registrarse con correo electrónico",
+      "submitLoading": "Creando cuenta…",
+      "google": "Registrarse con Google",
+      "haveAccount": "¿Ya tienes una cuenta?",
+      "signInLink": "Inicia sesión"
+    },
+    "fields": {
+      "emailPlaceholder": "nombre@empresa.com",
+      "passwordPlaceholder": "Contraseña",
+      "fullNamePlaceholder": "Nombre completo"
+    },
+    "legal": "Al continuar, aceptas crear una cuenta de AzaisAi sujeta a nuestros {terms} y nuestra {privacy}.",
+    "termsOfService": "Términos de servicio",
+    "privacyPolicy": "Política de privacidad"
+  },
+  "history": {
+    "title": "Historial",
+    "subtitle": "Todos los vídeos e imágenes que has generado, en un solo lugar.",
+    "filters": {
+      "all": "Todo",
+      "image": "Imagen",
+      "video": "Vídeo"
+    },
+    "empty": "Aún no hay nada aquí — tus creaciones aparecerán en esta vista.",
+    "download": "Descargar"
+  },
+  "pricing": {
+    "trial": {
+      "title": "Empieza tu prueba gratuita",
+      "description": "Verifica tu teléfono para obtener 8 créditos gratis — sin tarjeta. Una prueba por número de teléfono.",
+      "feature1": "Generación de vídeo con Sora 2",
+      "feature2": "Generación de imágenes con Nano Banana",
+      "featureNo1": "Modelos premium",
+      "featureNo2": "Descargas sin marca de agua",
+      "cta": "Empezar prueba gratuita"
+    },
+    "heading": "Planes de suscripción",
+    "subheading": "Cancela cuando quieras.",
+    "mostPopular": "Más popular",
+    "devBanner": "Modo de prueba: los pagos son simulados. Suscribirte aquí no cobrará ninguna tarjeta — otorga el plan al instante con fines de demostración.",
+    "choosePlan": "Elegir {plan}",
+    "redirecting": "Redirigiendo…",
+    "perMonth": "/mes",
+    "creditsPerMonth": "{credits} créditos / mes",
+    "plans": {
+      "starter": {
+        "name": "Starter",
+        "tagline": "Esencial",
+        "features": [
+          "60 créditos / mes",
+          "Generación de vídeo con Sora 2",
+          "Generación de imágenes con Nano Banana",
+          "Descargas limpias, sin marca de agua",
+          "Prioridad estándar en la cola"
+        ]
+      },
+      "pro": {
+        "name": "Pro",
+        "tagline": "Popular",
+        "features": [
+          "180 créditos / mes",
+          "Todos los modelos de vídeo e imagen",
+          "Modelos premium (Gen-4.5, GPT Image)",
+          "Descargas limpias, sin marca de agua",
+          "Cola de renderizado prioritaria",
+          "Herramientas de mejora y variación"
+        ]
+      },
+      "business": {
+        "name": "Business",
+        "tagline": "Máximo rendimiento",
+        "features": [
+          "420 créditos / mes",
+          "Todos los modelos de vídeo e imagen",
+          "Escalado 4K en modelos de imagen",
+          "Descargas limpias, sin marca de agua",
+          "Cola de renderizado más rápida",
+          "Puestos de equipo (hasta 5)"
+        ]
+      }
+    }
+  },
+  "billingSuccess": {
+    "testModeBadge": "Modo de prueba: pago simulado, sin cargo real",
+    "finishingUp": "Terminando…",
+    "doneTitle": "Todo listo",
+    "doneDevMessage": "Tu plan y tus créditos se actualizaron al instante — esto fue una simulación de desarrollo, no se procesó ningún pago real.",
+    "doneRealMessage": "Tu suscripción está activa y tus créditos se han actualizado.",
+    "errorMessage": "No pudimos confirmar tu suscripción. Si se te realizó un cargo, revisa el saldo de tu cuenta o contacta con soporte.",
+    "startGenerating": "Empezar a generar →"
+  },
+  "studio": {
+    "video": {
+      "title": "Estudio de vídeo",
+      "sourceTextToVideo": "Texto → Vídeo",
+      "sourceImageToVideo": "Imagen → Vídeo",
+      "uploadDropzone": "Arrastra o haz clic para subir",
+      "uploadHint": "JPG · PNG · WEBP · máx. 10 MB",
+      "myImages": "Mis imágenes",
+      "fromHistory": "Del historial",
+      "motionLabel": "Descripción del movimiento",
+      "motionPlaceholder": "Describe el movimiento (opcional)…",
+      "generate": "Generar vídeo"
+    },
+    "image": {
+      "title": "Estudio de imagen",
+      "describeLabel": "Describe tu imagen",
+      "describePlaceholder": "Una foto casual y sin editar de…",
+      "styleSettings": "Estilo y ajustes",
+      "generate": "Generar imagen"
+    },
+    "common": {
+      "model": "Modelo",
+      "settings": "Ajustes",
+      "aspectRatio": "Relación de aspecto",
+      "duration": "Duración",
+      "style": "Estilo",
+      "enhance": "Mejorar",
+      "variation": "Variación",
+      "estimatedCost": "Coste estimado",
+      "credits": "créditos",
+      "generating": "Generando…",
+      "estimatedTime": "Tiempo estimado",
+      "stageReadingPrompt": "Leyendo el prompt",
+      "stageComposingFrame": "Componiendo el fotograma",
+      "stageRendering": "Renderizando",
+      "stageFinishingTouches": "Últimos retoques",
+      "new": "Nuevo",
+      "download": "Descargar",
+      "generatedLabel": "Generado",
+      "exampleLabel": "Ejemplo",
+      "hideExample": "Ocultar ejemplo",
+      "showExample": "Mostrar ejemplo",
+      "emptyResult": "Tu creación aparecerá aquí",
+      "tabs": {
+        "text": "Texto",
+        "image": "Imagen"
+      }
+    },
+    "styles": {
+      "none": "Ninguno",
+      "cinematic": "Cinematográfico",
+      "anime": "Anime",
+      "photo": "Foto",
+      "illustration": "Ilustración"
+    },
+    "badges": {
+      "new": "NUEVO",
+      "popular": "POPULAR",
+      "premium": "PREMIUM",
+      "fast": "RÁPIDO",
+      "4k": "4K"
+    }
+  },
+  "theme": {
+    "toLight": "Cambiar a tema claro",
+    "toDark": "Cambiar a tema oscuro"
+  }
+}

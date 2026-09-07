@@ -34,7 +34,7 @@ export function Footer() {
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-accent-hi to-accent-lo font-display text-sm font-semibold text-[#160c04]">
+              <span className="flex h-7 w-7 items-center justify-center rounded-md bg-text font-display text-sm font-semibold text-bg">
                 A
               </span>
               <span className="font-display text-lg font-medium tracking-tight text-text">

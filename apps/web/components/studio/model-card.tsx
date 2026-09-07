@@ -18,32 +18,47 @@ export function ModelCard({
   model,
   selected,
   onSelect,
+  disabled = false,
+  disabledReason,
 }: {
   model: GenerationModel;
   selected: boolean;
   onSelect: () => void;
+  disabled?: boolean;
+  disabledReason?: string;
 }) {
   return (
     <motion.button
       type="button"
-      onClick={onSelect}
-      whileTap={{ scale: 0.98 }}
+      onClick={disabled ? undefined : onSelect}
+      aria-disabled={disabled}
+      title={disabled ? disabledReason : undefined}
+      whileTap={disabled ? undefined : { scale: 0.98 }}
       className={cn(
         "group relative flex flex-col gap-3 rounded-xl border p-3.5 text-left transition-all duration-200",
-        selected
-          ? "border-accent/60 bg-accent-wash shadow-[0_0_0_1px_var(--accent)_inset,0_12px_28px_-14px_var(--accent)]"
-          : "border-border-soft bg-surface hover:-translate-y-0.5 hover:border-accent/30 hover:shadow-[0_14px_30px_-16px_var(--accent)]",
+        disabled &&
+          "cursor-not-allowed border-border-soft bg-surface opacity-50 hover:translate-y-0 hover:shadow-none",
+        !disabled &&
+          (selected
+            ? "border-accent/60 bg-accent-wash shadow-[0_0_0_1px_var(--accent)_inset,0_12px_28px_-14px_var(--accent)]"
+            : "border-border-soft bg-surface hover:-translate-y-0.5 hover:border-accent/30 hover:shadow-[0_14px_30px_-16px_var(--accent)]"),
       )}
     >
-      {model.badge && (
-        <Badge tone={badgeTone[model.badge] ?? "accent"} className="absolute right-3 top-3">
-          {model.badge}
+      {disabled ? (
+        <Badge tone="muted" className="absolute right-3 top-3">
+          LOCKED
         </Badge>
+      ) : (
+        model.badge && (
+          <Badge tone={badgeTone[model.badge] ?? "accent"} className="absolute right-3 top-3">
+            {model.badge}
+          </Badge>
+        )
       )}
       <div
         className={cn(
           "flex h-9 w-9 items-center justify-center rounded-lg font-display text-sm font-medium transition-colors",
-          selected ? "bg-accent text-[#160c04]" : "bg-surface-2 text-accent-hi",
+          selected && !disabled ? "bg-text text-bg" : "bg-surface-2 text-accent-hi",
         )}
       >
         {model.initials}

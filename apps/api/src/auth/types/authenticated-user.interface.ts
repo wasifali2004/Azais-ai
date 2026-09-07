@@ -3,6 +3,7 @@ import type { PlanTier } from "../../generated/prisma/enums";
 export interface AuthenticatedUser {
   id: string;
   email: string;
+  plan: PlanTier;
 }
 
 export interface JwtPayload {

@@ -29,5 +29,3 @@ export const IMAGE_MODELS: GenerationModel[] = [
 export const IMAGE_STYLES = ["None", "Cinematic", "Anime", "Photo", "Illustration"] as const;
 
 export const ASPECT_RATIOS = ["16:9", "1:1", "9:16", "4:3", "3:4"] as const;
-
-export const VIDEO_DURATIONS = ["5s", "8s", "10s"] as const;

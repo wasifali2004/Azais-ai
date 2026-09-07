@@ -35,6 +35,20 @@ export class GeminiService {
     };
   }
 
+  async generateText(prompt: string): Promise<string> {
+    const response = await this.ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+    });
+
+    const text = response.text;
+    if (!text) {
+      throw new Error("Gemini returned no text");
+    }
+
+    return text.trim();
+  }
+
   async generateVideo(
     prompt: string,
     model: string,

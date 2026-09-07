@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { Clapperboard, Image as ImageIcon, History, Menu, X, Zap } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
+import { getSession } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
@@ -18,13 +19,18 @@ const NAV_LINKS = [
 export function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
+
+  useEffect(() => {
+    setSignedIn(!!getSession());
+  }, [pathname]);
 
   return (
     <header className="sticky top-0 z-50 border-b border-border-soft bg-bg/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-accent-hi to-accent-lo font-display text-sm font-semibold text-[#160c04]">
+            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-text font-display text-sm font-semibold text-bg">
               A
             </span>
             <span className="font-display text-lg font-medium tracking-tight text-text">
@@ -75,12 +81,20 @@ export function Navbar() {
             <span>credits</span>
           </div>
           <ThemeToggle />
-          <Button href="/login" variant="ghost" size="sm" className="hidden sm:inline-flex">
-            Sign in
-          </Button>
-          <Button href="/signup" variant="primary" size="sm" className="hidden sm:inline-flex">
-            Start free
-          </Button>
+          {signedIn ? (
+            <Button href="/studio" variant="primary" size="sm" className="hidden sm:inline-flex">
+              Dashboard
+            </Button>
+          ) : (
+            <>
+              <Button href="/login" variant="ghost" size="sm" className="hidden sm:inline-flex">
+                Sign in
+              </Button>
+              <Button href="/signup" variant="primary" size="sm" className="hidden sm:inline-flex">
+                Start free
+              </Button>
+            </>
+          )}
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
@@ -106,12 +120,20 @@ export function Navbar() {
               </Link>
             ))}
             <div className="mt-2 flex gap-2">
-              <Button href="/login" variant="secondary" size="sm" className="flex-1">
-                Sign in
-              </Button>
-              <Button href="/signup" variant="primary" size="sm" className="flex-1">
-                Start free
-              </Button>
+              {signedIn ? (
+                <Button href="/studio" variant="primary" size="sm" className="flex-1">
+                  Dashboard
+                </Button>
+              ) : (
+                <>
+                  <Button href="/login" variant="secondary" size="sm" className="flex-1">
+                    Sign in
+                  </Button>
+                  <Button href="/signup" variant="primary" size="sm" className="flex-1">
+                    Start free
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>

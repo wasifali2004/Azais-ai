@@ -16,6 +16,26 @@
   --color-accent-lo: var(--accent-lo);
   --color-accent-wash: var(--accent-wash);
 
+  /* Standard shadcn token names — additive, black/white per theme, used by
+     drop-in shadcn-shaped components (Button, Switch, Label, Pricing, …)
+     that expect bg-background/text-foreground/bg-primary/etc. */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
   --font-display: var(--font-fraunces);
   --font-body: var(--font-inter);
 
@@ -44,50 +64,101 @@
 }
 
 :root {
-  --bg: #faf6ef;
+  --bg: #ffffff;
   --surface: #ffffff;
-  --surface-2: #f3ecdd;
-  --border: #e7ddc9;
-  --border-soft: #efe8d8;
-  --text: #1c150c;
-  --text-muted: #6b5f4d;
-  --text-faint: #a89a83;
-  --accent: #c1631f;
-  --accent-hi: #a3521a;
-  --accent-lo: #ecd9c2;
-  --accent-wash: rgba(193, 99, 31, 0.1);
+  --surface-2: #f5f5f5;
+  --border: #e5e5e5;
+  --border-soft: #ececec;
+  --text: #0a0a0a;
+  --text-muted: #52525b;
+  --text-faint: #a3a3a3;
+  --accent: #171717;
+  --accent-hi: #000000;
+  --accent-lo: #e5e5e5;
+  --accent-wash: rgba(0, 0, 0, 0.06);
+
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+  --card: #ffffff;
+  --card-foreground: #0a0a0a;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0a;
+  --primary: #0a0a0a;
+  --primary-foreground: #fafafa;
+  --secondary: #f5f5f5;
+  --secondary-foreground: #171717;
+  --muted: #f5f5f5;
+  --muted-foreground: #737373;
+  --destructive: #dc2626;
+  --destructive-foreground: #fafafa;
+  --input: #e5e5e5;
+  --ring: #0a0a0a;
 }
 
 :root:not([data-theme="light"]) {
   @media (prefers-color-scheme: dark) {
-    --bg: #0b0a08;
-    --surface: #17140f;
-    --surface-2: #211c15;
-    --border: #33291d;
-    --border-soft: #241f17;
-    --text: #f6f1e7;
-    --text-muted: #a89a84;
-    --text-faint: #6b6153;
-    --accent: #e2793c;
-    --accent-hi: #ffa662;
-    --accent-lo: #b85b24;
-    --accent-wash: rgba(226, 121, 60, 0.12);
+    --bg: #000000;
+    --surface: #111111;
+    --surface-2: #1a1a1a;
+    --border: #2e2e2e;
+    --border-soft: #232323;
+    --text: #fafafa;
+    --text-muted: #a3a3a3;
+    --text-faint: #6b6b6b;
+    --accent: #e5e5e5;
+    --accent-hi: #ffffff;
+    --accent-lo: #262626;
+    --accent-wash: rgba(255, 255, 255, 0.08);
+
+    --background: #0a0a0a;
+    --foreground: #fafafa;
+    --card: #0a0a0a;
+    --card-foreground: #fafafa;
+    --popover: #0a0a0a;
+    --popover-foreground: #fafafa;
+    --primary: #fafafa;
+    --primary-foreground: #171717;
+    --secondary: #262626;
+    --secondary-foreground: #fafafa;
+    --muted: #262626;
+    --muted-foreground: #a3a3a3;
+    --destructive: #f87171;
+    --destructive-foreground: #1a0a0a;
+    --input: #262626;
+    --ring: #d4d4d4;
   }
 }
 
 .dark {
-  --bg: #0b0a08;
-  --surface: #17140f;
-  --surface-2: #211c15;
-  --border: #33291d;
-  --border-soft: #241f17;
-  --text: #f6f1e7;
-  --text-muted: #a89a84;
-  --text-faint: #6b6153;
-  --accent: #e2793c;
-  --accent-hi: #ffa662;
-  --accent-lo: #b85b24;
-  --accent-wash: rgba(226, 121, 60, 0.12);
+  --bg: #000000;
+  --surface: #111111;
+  --surface-2: #1a1a1a;
+  --border: #2e2e2e;
+  --border-soft: #232323;
+  --text: #fafafa;
+  --text-muted: #a3a3a3;
+  --text-faint: #6b6b6b;
+  --accent: #e5e5e5;
+  --accent-hi: #ffffff;
+  --accent-lo: #262626;
+  --accent-wash: rgba(255, 255, 255, 0.08);
+
+  --background: #0a0a0a;
+  --foreground: #fafafa;
+  --card: #0a0a0a;
+  --card-foreground: #fafafa;
+  --popover: #0a0a0a;
+  --popover-foreground: #fafafa;
+  --primary: #fafafa;
+  --primary-foreground: #171717;
+  --secondary: #262626;
+  --secondary-foreground: #fafafa;
+  --muted: #262626;
+  --muted-foreground: #a3a3a3;
+  --destructive: #f87171;
+  --destructive-foreground: #1a0a0a;
+  --input: #262626;
+  --ring: #d4d4d4;
 }
 
 body {
@@ -96,8 +167,8 @@ body {
 }
 
 ::selection {
-  background: var(--accent);
-  color: #160c04;
+  background: var(--text);
+  color: var(--bg);
 }
 
 * {

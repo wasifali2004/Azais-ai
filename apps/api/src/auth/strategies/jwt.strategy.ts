@@ -23,13 +23,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     // still-valid-by-expiry token can't keep accessing protected routes.
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },
-      select: { id: true, email: true },
+      select: { id: true, email: true, plan: true },
     });
 
     if (!user) {
       throw new UnauthorizedException("Invalid or expired session");
     }
 
-    return { id: user.id, email: user.email };
+    return { id: user.id, email: user.email, plan: user.plan };
   }
 }

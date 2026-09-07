@@ -1,0 +1,204 @@
+{
+  "nav": {
+    "video": "Video",
+    "image": "Image",
+    "history": "History",
+    "pricing": "Pricing",
+    "credits": "credits",
+    "signIn": "Sign in",
+    "startFree": "Start free",
+    "toggleMenu": "Toggle menu"
+  },
+  "footer": {
+    "tagline": "Cinematic video and image generation, built for people who finish what they start.",
+    "columns": {
+      "product": "Product",
+      "company": "Company",
+      "legal": "Legal"
+    },
+    "links": {
+      "videoGeneration": "Video generation",
+      "imageGeneration": "Image generation",
+      "pricing": "Pricing",
+      "history": "History",
+      "about": "About",
+      "careers": "Careers",
+      "contact": "Contact",
+      "terms": "Terms",
+      "privacy": "Privacy"
+    },
+    "copyright": "© {year} AzaisAi. All rights reserved.",
+    "madeFor": "Made for creators who ship."
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in to Account",
+      "subtitle": "Sign in to your Account.",
+      "submit": "Continue with Email",
+      "submitLoading": "Signing in…",
+      "google": "Continue with Google",
+      "noAccount": "Don't have an account?",
+      "signUpLink": "Sign Up"
+    },
+    "signup": {
+      "title": "Sign up for Account",
+      "subtitle": "Create a new account to get started.",
+      "submit": "Sign Up with Email",
+      "submitLoading": "Creating account…",
+      "google": "Sign up with Google",
+      "haveAccount": "Already have an account?",
+      "signInLink": "Sign In"
+    },
+    "fields": {
+      "emailPlaceholder": "name@work-email.com",
+      "passwordPlaceholder": "Password",
+      "fullNamePlaceholder": "Full Name"
+    },
+    "legal": "By proceeding, you agree to creating an AzaisAi account subject to our {terms} and {privacy}.",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy"
+  },
+  "history": {
+    "title": "History",
+    "subtitle": "Every video and image you've generated, in one place.",
+    "filters": {
+      "all": "All",
+      "image": "Image",
+      "video": "Video"
+    },
+    "empty": "Nothing here yet — your generations will show up in this view.",
+    "download": "Download"
+  },
+  "pricing": {
+    "trial": {
+      "title": "Start your free trial",
+      "description": "Verify your phone to get 8 free credits — no card required. One trial per phone number.",
+      "feature1": "Sora 2 video generation",
+      "feature2": "Nano Banana image generation",
+      "featureNo1": "Premium models",
+      "featureNo2": "Clean downloads",
+      "cta": "Start free trial"
+    },
+    "heading": "Subscription plans",
+    "subheading": "Cancel anytime.",
+    "mostPopular": "Most popular",
+    "devBanner": "Test mode: payments are simulated. Subscribing here will not charge a card — it grants the plan instantly for demo purposes.",
+    "choosePlan": "Choose {plan}",
+    "redirecting": "Redirecting…",
+    "perMonth": "/month",
+    "creditsPerMonth": "{credits} credits / month",
+    "plans": {
+      "starter": {
+        "name": "Starter",
+        "tagline": "Core",
+        "features": [
+          "60 credits / month",
+          "Sora 2 video generation",
+          "Nano Banana image generation",
+          "Clean downloads, no watermark",
+          "Standard queue priority"
+        ]
+      },
+      "pro": {
+        "name": "Pro",
+        "tagline": "Popular",
+        "features": [
+          "180 credits / month",
+          "All video & image models",
+          "Premium models (Gen-4.5, GPT Image)",
+          "Clean downloads, no watermark",
+          "Priority render queue",
+          "Enhance & variation tools"
+        ]
+      },
+      "business": {
+        "name": "Business",
+        "tagline": "Power",
+        "features": [
+          "420 credits / month",
+          "All video & image models",
+          "4K upscale on image models",
+          "Clean downloads, no watermark",
+          "Fastest render queue",
+          "Team seats (up to 5)"
+        ]
+      }
+    }
+  },
+  "billingSuccess": {
+    "testModeBadge": "Test mode: payment simulated, no real charge",
+    "finishingUp": "Finishing up…",
+    "doneTitle": "You're all set",
+    "doneDevMessage": "Your plan and credits were updated instantly — this was a dev bypass, no real payment was processed.",
+    "doneRealMessage": "Your subscription is active and your credits have been updated.",
+    "errorMessage": "Could not confirm your subscription. If you were charged, check your account balance or contact support.",
+    "startGenerating": "Start generating →"
+  },
+  "studio": {
+    "video": {
+      "title": "Video Studio",
+      "sourceTextToVideo": "Text → Video",
+      "sourceImageToVideo": "Image → Video",
+      "uploadDropzone": "Drop or click to upload",
+      "uploadHint": "JPG · PNG · WEBP · max 10MB",
+      "myImages": "My images",
+      "fromHistory": "From history",
+      "motionLabel": "Motion description",
+      "motionPlaceholder": "Describe the motion (optional)…",
+      "generate": "Generate video"
+    },
+    "image": {
+      "title": "Image Studio",
+      "describeLabel": "Describe your image",
+      "describePlaceholder": "A casual, unedited snapshot of…",
+      "styleSettings": "Style & settings",
+      "generate": "Generate image"
+    },
+    "common": {
+      "model": "Model",
+      "settings": "Settings",
+      "aspectRatio": "Aspect ratio",
+      "duration": "Duration",
+      "style": "Style",
+      "enhance": "Enhance",
+      "variation": "Variation",
+      "estimatedCost": "Estimated cost",
+      "credits": "credits",
+      "generating": "Generating…",
+      "estimatedTime": "Estimated time",
+      "stageReadingPrompt": "Reading prompt",
+      "stageComposingFrame": "Composing frame",
+      "stageRendering": "Rendering",
+      "stageFinishingTouches": "Finishing touches",
+      "new": "New",
+      "download": "Download",
+      "generatedLabel": "Generated",
+      "exampleLabel": "Example",
+      "hideExample": "Hide example",
+      "showExample": "Show example",
+      "emptyResult": "Your generation will appear here",
+      "tabs": {
+        "text": "Text",
+        "image": "Image"
+      }
+    },
+    "styles": {
+      "none": "None",
+      "cinematic": "Cinematic",
+      "anime": "Anime",
+      "photo": "Photo",
+      "illustration": "Illustration"
+    },
+    "badges": {
+      "new": "NEW",
+      "popular": "POPULAR",
+      "premium": "PREMIUM",
+      "fast": "FAST",
+      "4k": "4K"
+    }
+  },
+  "theme": {
+    "toLight": "Switch to light theme",
+    "toDark": "Switch to dark theme"
+  }
+}

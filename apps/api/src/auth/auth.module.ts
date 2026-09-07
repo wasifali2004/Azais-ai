@@ -5,6 +5,7 @@ import type { StringValue } from "ms";
 import { EmailModule } from "../email/email.module";
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
+import { GoogleAuthGuard } from "./guards/google-auth.guard";
 import { GoogleStrategy } from "./strategies/google.strategy";
 import { JwtStrategy } from "./strategies/jwt.strategy";
 
@@ -18,7 +19,7 @@ import { JwtStrategy } from "./strategies/jwt.strategy";
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, GoogleStrategy],
+  providers: [AuthService, JwtStrategy, GoogleStrategy, GoogleAuthGuard],
   exports: [JwtModule],
 })
 export class AuthModule {}

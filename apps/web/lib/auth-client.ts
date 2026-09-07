@@ -34,7 +34,7 @@ export function clearSession() {
   localStorage.removeItem(STORAGE_KEY);
 }
 
-async function readErrorMessage(res: Response, fallback: string): Promise<string> {
+export async function readErrorMessage(res: Response, fallback: string): Promise<string> {
   const body = await res.json().catch(() => null);
   return (body?.message as string | undefined) ?? fallback;
 }

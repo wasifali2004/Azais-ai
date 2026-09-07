@@ -1,4 +1,4 @@
-import { SHOWCASE_ITEMS } from "@/lib/media";
+import { getHistory as fetchHistoryPage } from "@/lib/generation-client";
 
 export type HistoryItem = {
   id: string;
@@ -8,25 +8,27 @@ export type HistoryItem = {
   model: string;
   createdAt: string;
   aspect: "portrait" | "square" | "landscape";
-  credits: number;
 };
 
-const ASPECTS: HistoryItem["aspect"][] = ["landscape", "portrait", "square", "landscape", "portrait"];
+function aspectFor(aspectRatio: unknown): HistoryItem["aspect"] {
+  if (aspectRatio === "9:16" || aspectRatio === "3:4") return "portrait";
+  if (aspectRatio === "1:1") return "square";
+  return "landscape";
+}
 
-/**
- * Mock generation history — replace with a real fetch to the API once
- * the history endpoint exists. Shape mirrors what the endpoint returns.
- */
-export const HISTORY_ITEMS: HistoryItem[] = Array.from({ length: 10 }).map((_, i) => {
-  const base = SHOWCASE_ITEMS[i % SHOWCASE_ITEMS.length];
-  return {
-    id: `${base.id}-${i}`,
-    type: i % 4 === 0 ? "video" : "image",
-    src: base.src,
-    prompt: base.prompt,
-    model: base.model,
-    createdAt: new Date(Date.now() - i * 36e5 * 7).toISOString(),
-    aspect: ASPECTS[i % ASPECTS.length],
-    credits: i % 4 === 0 ? 5 : 2,
-  };
-});
+/** Fetches real generation history, keeping only completed items with output media. */
+export async function fetchHistory(page = 1, limit = 50): Promise<HistoryItem[]> {
+  const { items } = await fetchHistoryPage(page, limit);
+
+  return items
+    .filter((g) => g.status === "COMPLETE" && g.outputUrl)
+    .map((g) => ({
+      id: g.id,
+      type: g.type === "VIDEO" ? "video" : "image",
+      src: g.outputUrl as string,
+      prompt: g.prompt,
+      model: g.model,
+      createdAt: g.createdAt,
+      aspect: aspectFor(g.settings?.aspectRatio),
+    }));
+}

@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { HistoryGrid } from "@/components/history/history-grid";
-import { HISTORY_ITEMS } from "@/lib/history";
+import { fetchHistory, type HistoryItem } from "@/lib/history";
 import { fadeUp } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -11,11 +11,20 @@ const FILTERS = ["All", "Image", "Video"] as const;
 
 export default function HistoryPage() {
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>("All");
+  const [allItems, setAllItems] = useState<HistoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchHistory()
+      .then(setAllItems)
+      .catch(() => setAllItems([]))
+      .finally(() => setLoading(false));
+  }, []);
 
   const items = useMemo(() => {
-    if (filter === "All") return HISTORY_ITEMS;
-    return HISTORY_ITEMS.filter((i) => i.type === filter.toLowerCase());
-  }, [filter]);
+    if (filter === "All") return allItems;
+    return allItems.filter((i) => i.type === filter.toLowerCase());
+  }, [filter, allItems]);
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8">
@@ -43,7 +52,11 @@ export default function HistoryPage() {
       </div>
 
       <div className="mt-8">
-        <HistoryGrid items={items} />
+        {loading ? (
+          <p className="py-24 text-center text-sm text-text-faint">Loading your history…</p>
+        ) : (
+          <HistoryGrid items={items} />
+        )}
       </div>
     </div>
   );

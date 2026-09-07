@@ -1,17 +1,46 @@
 import Link from "next/link";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { cva } from "class-variance-authority";
 import { cn } from "@/lib/utils";
+
+/**
+ * Shadcn-shaped variants for drop-in components (e.g. Pricing) that import
+ * `buttonVariants` directly rather than the `Button` component below. Kept
+ * separate from our own `Button` API so neither has to bend to fit the other.
+ */
+export const buttonVariants = cva(
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        outline: "border border-input bg-background hover:bg-secondary hover:text-secondary-foreground",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost: "hover:bg-secondary hover:text-secondary-foreground",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        default: "h-10 px-4 py-2",
+        sm: "h-9 rounded-md px-3",
+        lg: "h-11 rounded-md px-8",
+        icon: "h-10 w-10",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  },
+);
 
 type Variant = "primary" | "secondary" | "outline" | "ghost";
 type Size = "sm" | "md" | "lg";
 
 const variantClasses: Record<Variant, string> = {
-  primary:
-    "bg-gradient-to-b from-accent-hi to-accent text-[#160c04] font-semibold shadow-[0_1px_0_rgba(255,255,255,0.25)_inset,0_10px_24px_-10px_var(--accent)] hover:brightness-[1.06] active:brightness-95",
-  secondary:
-    "bg-surface-2 text-text border border-border-soft hover:border-accent/40 hover:text-accent-hi",
-  outline:
-    "bg-transparent text-text border border-border hover:border-accent/50 hover:text-accent-hi",
+  primary: "bg-text text-bg font-semibold shadow-sm hover:opacity-90 active:opacity-100",
+  secondary: "bg-surface-2 text-text border border-border-soft hover:border-text/40",
+  outline: "bg-transparent text-text border border-border hover:border-text/50",
   ghost: "bg-transparent text-text-muted hover:text-text",
 };
 

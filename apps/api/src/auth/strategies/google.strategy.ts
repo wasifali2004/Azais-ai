@@ -1,7 +1,8 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
-import { Profile, Strategy, VerifyCallback } from "passport-google-oauth20";
+import { Profile, Strategy } from "passport-google-oauth20";
 import { AuthService } from "../auth.service";
+import type { GoogleAuthenticatedUser } from "../types/authenticated-user.interface";
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
@@ -22,19 +23,22 @@ export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
     });
   }
 
+  // @nestjs/passport's PassportStrategy wraps this itself: it awaits
+  // whatever validate() returns and calls passport's done() with that value
+  // (or with a thrown error). validate() must NOT also call a done callback
+  // itself — doing so double-calls done(), and the wrapper's own follow-up
+  // call (with validate()'s actual return value, i.e. undefined, since
+  // nothing was returned) silently wins over the manual one.
   async validate(
     _accessToken: string,
     _refreshToken: string,
     profile: Profile,
-    done: VerifyCallback,
-  ): Promise<void> {
+  ): Promise<GoogleAuthenticatedUser> {
     const email = profile.emails?.[0]?.value;
     if (!email) {
-      done(new UnauthorizedException("Google account has no email"), false);
-      return;
+      throw new UnauthorizedException("Google account has no email");
     }
 
-    const user = await this.authService.loginOrLinkGoogleUser(profile.id, email);
-    done(null, user);
+    return this.authService.loginOrLinkGoogleUser(profile.id, email);
   }
 }

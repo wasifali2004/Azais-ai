@@ -1,16 +1,35 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException } from "@nestjs/common";
+import type { AuthenticatedUser } from "../auth/types/authenticated-user.interface";
 import { CreditsService } from "../credits/credits.service";
 import type { GeneratedMedia } from "../gemini/gemini.service";
 import { GeminiService } from "../gemini/gemini.service";
+import type { PlanTier } from "../generated/prisma/enums";
 import { PrismaService } from "../prisma/prisma.service";
 import { StorageService } from "../storage/storage.service";
+import type { EnhancePromptDto } from "./dto/enhance-prompt.dto";
 import type { GenerateDto } from "./dto/generate.dto";
 import {
   ALLOWED_VIDEO_DURATIONS,
   computeCreditsCost,
+  getModelCatalog,
   IMAGE_MODELS,
+  validateSettings,
   VIDEO_MODELS,
 } from "./model-catalog";
+
+const FREE_ENHANCEMENTS_PER_DAY = 3;
+const ENHANCEMENT_CREDIT_COST = 1;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+const ENHANCE_INSTRUCTIONS: Record<"enhance" | "variation", (noun: string) => string> = {
+  enhance: (noun) =>
+    `Rewrite the following prompt into a more detailed, generation-optimized prompt for an AI ${noun} generator. ` +
+    `Keep the same core subject and intent, but add vivid, concrete visual detail (composition, lighting, mood, style cues). ` +
+    `Reply with only the rewritten prompt, no preamble or quotes.\n\nPrompt: `,
+  variation: (noun) =>
+    `Rewrite the following prompt as an alternate phrasing for an AI ${noun} generator, preserving the same core subject ` +
+    `and intent but varying the wording and descriptive details. Reply with only the rewritten prompt, no preamble or quotes.\n\nPrompt: `,
+};
 
 const GENERATION_TIMEOUT_MS = 2 * 60 * 1000;
 
@@ -60,12 +79,19 @@ export class GenerationService {
     private readonly storage: StorageService,
   ) {}
 
-  async create(userId: string, dto: GenerateDto) {
+  async create(user: AuthenticatedUser, dto: GenerateDto) {
+    const userId = user.id;
     let creditsCost: number;
     try {
+      validateSettings(dto.type, dto.model, dto.settings);
       creditsCost = computeCreditsCost(dto.type, dto.model, dto.settings?.durationSeconds);
     } catch (err) {
       throw new BadRequestException(err instanceof Error ? err.message : "Invalid model");
+    }
+
+    const catalogConfig = dto.type === "IMAGE" ? IMAGE_MODELS[dto.model] : VIDEO_MODELS[dto.model];
+    if (catalogConfig.tier === "PAID" && user.plan === "FREE") {
+      throw new ForbiddenException("Upgrade your plan to use this model");
     }
 
     // Debit up front; a failed/timed-out generation refunds it later.
@@ -173,5 +199,53 @@ export class GenerationService {
     ]);
 
     return { items, total, page, limit };
+  }
+
+  getModels(userPlan: PlanTier) {
+    return getModelCatalog(userPlan);
+  }
+
+  async enhancePrompt(user: AuthenticatedUser, dto: EnhancePromptDto) {
+    const dbUser = await this.prisma.user.findUniqueOrThrow({
+      where: { id: user.id },
+      select: { dailyEnhanceCount: true, dailyEnhanceResetAt: true },
+    });
+
+    const resetDue = Date.now() - dbUser.dailyEnhanceResetAt.getTime() > DAY_MS;
+    const currentCount = resetDue ? 0 : dbUser.dailyEnhanceCount;
+
+    const usingFreeAllowance = currentCount < FREE_ENHANCEMENTS_PER_DAY;
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: resetDue
+        ? { dailyEnhanceCount: 1, dailyEnhanceResetAt: new Date() }
+        : { dailyEnhanceCount: { increment: 1 } },
+    });
+
+    if (!usingFreeAllowance) {
+      await this.credits.debit(user.id, ENHANCEMENT_CREDIT_COST, "PROMPT_ENHANCEMENT");
+    }
+
+    const noun = dto.type === "VIDEO" ? "video" : "image";
+    const instruction = ENHANCE_INSTRUCTIONS[dto.mode](noun) + dto.prompt;
+
+    try {
+      const rewritten = await this.gemini.generateText(instruction);
+      return {
+        prompt: rewritten,
+        remainingFree: Math.max(0, FREE_ENHANCEMENTS_PER_DAY - currentCount - 1),
+      };
+    } catch (err) {
+      this.logger.error(`Prompt ${dto.mode} failed: ${err instanceof Error ? err.message : err}`);
+
+      if (!usingFreeAllowance) {
+        await this.credits.credit(user.id, ENHANCEMENT_CREDIT_COST, "PROMPT_ENHANCEMENT");
+      }
+
+      throw new BadRequestException(
+        `We couldn't ${dto.mode === "enhance" ? "enhance" : "generate a variation of"} that prompt right now — please try again.`,
+      );
+    }
   }
 }

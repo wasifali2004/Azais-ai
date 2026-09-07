@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 const toneClasses: Record<string, string> = {
   accent: "bg-accent-wash text-accent-hi",
   muted: "bg-surface-2 text-text-muted border border-border-soft",
-  solid: "bg-gradient-to-b from-accent-hi to-accent text-[#160c04]",
+  solid: "bg-text text-bg",
 };
 
 export function Badge({

@@ -1,5 +1,4 @@
 import { Controller, Get, Body, HttpCode, HttpStatus, Post, Req, Res, UseGuards } from "@nestjs/common";
-import { AuthGuard } from "@nestjs/passport";
 import { Throttle, seconds } from "@nestjs/throttler";
 import type { Request, Response } from "express";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
@@ -9,6 +8,7 @@ import { LoginDto } from "./dto/login.dto";
 import { ResendCodeDto } from "./dto/resend-code.dto";
 import { SignupDto } from "./dto/signup.dto";
 import { VerifyEmailDto } from "./dto/verify-email.dto";
+import { GoogleAuthGuard } from "./guards/google-auth.guard";
 import type { AuthenticatedUser, GoogleAuthenticatedUser } from "./types/authenticated-user.interface";
 
 const AUTH_THROTTLE = { default: { limit: 5, ttl: seconds(60) } };
@@ -55,7 +55,7 @@ export class AuthController {
   }
 
   @Public()
-  @UseGuards(AuthGuard("google"))
+  @UseGuards(GoogleAuthGuard)
   @Get("google")
   googleLogin() {
     // Passport's GoogleStrategy intercepts this request and redirects to
@@ -63,9 +63,12 @@ export class AuthController {
   }
 
   @Public()
-  @UseGuards(AuthGuard("google"))
+  @UseGuards(GoogleAuthGuard)
   @Get("google/callback")
   async googleCallback(@Req() req: Request, @Res() res: Response) {
+    // GoogleAuthGuard already redirected to /login?error=... on failure.
+    if (res.headersSent) return;
+
     const user = req.user as GoogleAuthenticatedUser;
     const { accessToken } = await this.authService.buildAuthResponse(user);
 

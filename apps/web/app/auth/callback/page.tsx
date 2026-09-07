@@ -20,7 +20,7 @@ function CallbackInner() {
     fetchProfile(token)
       .then((user) => {
         saveSession({ accessToken: token, user });
-        router.replace("/pricing");
+        router.replace("/studio");
       })
       .catch((err) => {
         setError(err instanceof Error ? err.message : "Could not complete sign-in");

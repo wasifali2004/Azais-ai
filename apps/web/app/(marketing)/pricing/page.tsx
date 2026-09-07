@@ -4,11 +4,38 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { AlertTriangle, Check, Sparkle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PricingCard } from "@/components/marketing/pricing-card";
+import { Pricing } from "@/components/ui/pricing";
 import { Footer } from "@/components/marketing/footer";
 import { fetchBillingConfig } from "@/lib/auth-client";
 import { PRICING_PLANS } from "@/lib/pricing";
-import { fadeUp, stagger } from "@/lib/motion";
+import { fadeUp } from "@/lib/motion";
+
+const PLAN_COPY: Record<string, { buttonText: string; description: string }> = {
+  starter: {
+    buttonText: "Choose Starter",
+    description: "Perfect for individuals just getting started with AI generation.",
+  },
+  pro: {
+    buttonText: "Get Started",
+    description: "Ideal for creators who need every model, priority queue and clean exports.",
+  },
+  business: {
+    buttonText: "Choose Business",
+    description: "For teams shipping high volumes of finished video and image work.",
+  },
+};
+
+const PRICING_SECTION_PLANS = PRICING_PLANS.map((plan) => ({
+  name: plan.name.toUpperCase(),
+  price: String(Math.round(plan.price)),
+  yearlyPrice: String(Math.round(plan.price * 0.8)),
+  period: "per month",
+  features: plan.features,
+  description: PLAN_COPY[plan.id]?.description ?? "",
+  buttonText: PLAN_COPY[plan.id]?.buttonText ?? "Choose plan",
+  href: `/checkout/${plan.id}`,
+  isPopular: !!plan.popular,
+}));
 
 export default function PricingPage() {
   const [devSkipPayment, setDevSkipPayment] = useState(false);
@@ -65,25 +92,16 @@ export default function PricingPage() {
             Start free trial
           </Button>
         </motion.div>
-
-        <div className="mt-14 flex items-end justify-between">
-          <div>
-            <h1 className="font-display text-3xl font-medium text-text">Subscription plans</h1>
-            <p className="mt-1 text-sm text-text-faint">Cancel anytime.</p>
-          </div>
-        </div>
-
-        <motion.div
-          variants={stagger(0.1)}
-          initial="hidden"
-          animate="show"
-          className="mt-8 grid gap-6 lg:grid-cols-3"
-        >
-          {PRICING_PLANS.map((plan) => (
-            <PricingCard key={plan.id} plan={plan} />
-          ))}
-        </motion.div>
       </div>
+
+      <div className="bg-background text-foreground">
+        <Pricing
+          plans={PRICING_SECTION_PLANS}
+          title="Simple, Transparent Pricing"
+          description={"Choose the plan that works for you\nCancel anytime. No hidden fees, no watermarks on paid plans."}
+        />
+      </div>
+
       <Footer />
     </>
   );

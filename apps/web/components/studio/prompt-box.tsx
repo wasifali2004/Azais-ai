@@ -1,18 +1,26 @@
 "use client";
 
-import { Wand2, Shuffle } from "lucide-react";
+import { Loader2, Shuffle, Wand2 } from "lucide-react";
 
 export function PromptBox({
   label,
   value,
   onChange,
   placeholder,
+  onEnhance,
+  onVariation,
+  busy,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder: string;
+  onEnhance?: () => void;
+  onVariation?: () => void;
+  busy?: "enhance" | "variation" | null;
 }) {
+  const disabled = !value.trim() || !!busy;
+
   return (
     <div>
       <div className="mb-2 flex items-center justify-between">
@@ -22,16 +30,20 @@ export function PromptBox({
         <div className="flex items-center gap-3">
           <button
             type="button"
-            className="flex items-center gap-1 text-xs font-medium text-text-muted transition-colors hover:text-accent-hi"
+            onClick={onEnhance}
+            disabled={disabled}
+            className="flex items-center gap-1 text-xs font-medium text-text-muted transition-colors hover:text-accent-hi disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <Wand2 size={12} />
+            {busy === "enhance" ? <Loader2 size={12} className="animate-spin" /> : <Wand2 size={12} />}
             Enhance
           </button>
           <button
             type="button"
-            className="flex items-center gap-1 text-xs font-medium text-text-muted transition-colors hover:text-accent-hi"
+            onClick={onVariation}
+            disabled={disabled}
+            className="flex items-center gap-1 text-xs font-medium text-text-muted transition-colors hover:text-accent-hi disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <Shuffle size={12} />
+            {busy === "variation" ? <Loader2 size={12} className="animate-spin" /> : <Shuffle size={12} />}
             Variation
           </button>
         </div>

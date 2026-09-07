@@ -8,11 +8,13 @@ export function GenerateBar({
   loading,
   label,
   onGenerate,
+  disabledReason,
 }: {
   cost: number;
   loading: boolean;
   label: string;
   onGenerate: () => void;
+  disabledReason?: string | null;
 }) {
   return (
     <div className="space-y-3 border-t border-border-soft pt-5">
@@ -27,11 +29,15 @@ export function GenerateBar({
         variant="primary"
         size="lg"
         className="w-full"
-        disabled={loading}
+        disabled={loading || !!disabledReason}
         onClick={onGenerate}
+        title={disabledReason ?? undefined}
       >
         {loading ? "Generating…" : label}
       </Button>
+      {!loading && disabledReason && (
+        <p className="text-center text-xs text-text-faint">{disabledReason}</p>
+      )}
     </div>
   );
 }
