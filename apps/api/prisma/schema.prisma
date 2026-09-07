@@ -40,23 +40,32 @@ enum CreditReason {
 model User {
   id            String   @id @default(cuid())
   email         String   @unique
-  passwordHash  String
+  // Nullable: a user who signed up via Google has no password.
+  passwordHash  String?
+  // Set when the account was created (or linked) via Google sign-in.
+  googleId      String?  @unique
   plan          PlanTier @default(FREE)
   creditBalance Int      @default(0)
   isVerified    Boolean  @default(false)
+  // Set once the user completes a Polar checkout. polarSubscriptionId also
+  // doubles as an idempotency key so a redelivered webhook can't re-grant
+  // the same period's credits twice.
+  polarCustomerId     String? @unique
+  polarSubscriptionId String? @unique
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  verificationTokens VerificationToken[]
+  verificationCodes EmailVerificationCode[]
   creditTransactions CreditTransaction[]
   generations        Generation[]
 }
 
-model VerificationToken {
+model EmailVerificationCode {
   id         String    @id @default(cuid())
-  token      String    @unique
   userId     String
   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // bcrypt hash of the 6-digit code — never store it in plaintext.
+  codeHash   String
   expiresAt  DateTime
   consumedAt DateTime?
   createdAt  DateTime  @default(now())
@@ -88,7 +97,11 @@ model Generation {
   status       GenerationStatus @default(PENDING)
   creditsCost  Int
   outputUrl    String?
+  // Technical failure detail — logs/debugging only, never returned to the client.
   errorMessage String?
+  // Calm, human-readable message shown to the client on failure. Never
+  // contains stack traces, provider names, or raw API error codes.
+  userMessage  String?
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
 

@@ -5,8 +5,11 @@ import { ThrottlerGuard, ThrottlerModule, seconds } from "@nestjs/throttler";
 import { AuthModule } from "./auth/auth.module";
 import { JwtAuthGuard } from "./auth/guards/jwt-auth.guard";
 import { AllExceptionsFilter } from "./common/filters/all-exceptions.filter";
+import { CreditsModule } from "./credits/credits.module";
 import { EmailModule } from "./email/email.module";
+import { GenerationModule } from "./generation/generation.module";
 import { HealthModule } from "./health/health.module";
+import { PolarModule } from "./polar/polar.module";
 import { PrismaModule } from "./prisma/prisma.module";
 
 @Module({
@@ -17,6 +20,9 @@ import { PrismaModule } from "./prisma/prisma.module";
     HealthModule,
     EmailModule,
     AuthModule,
+    CreditsModule,
+    GenerationModule,
+    PolarModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

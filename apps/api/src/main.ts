@@ -9,7 +9,10 @@ import helmet from "helmet";
 import { AppModule } from "./app.module";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  // rawBody: true so the Polar webhook handler can verify the request
+  // signature against the exact bytes Polar sent (req.rawBody), not a
+  // re-serialized copy of the parsed JSON.
+  const app = await NestFactory.create(AppModule, { rawBody: true });
 
   app.use(helmet());
 

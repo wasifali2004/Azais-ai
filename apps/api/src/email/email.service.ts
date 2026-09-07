@@ -14,14 +14,10 @@ export class EmailService {
   private readonly fromEmail =
     process.env.RESEND_FROM_EMAIL ?? "AzaisAi <onboarding@resend.dev>";
 
-  private readonly frontendUrl = process.env.FRONTEND_URL ?? "http://localhost:3000";
-
-  async sendVerificationEmail(to: string, verificationToken: string): Promise<void> {
-    const verifyUrl = `${this.frontendUrl}/verify-email?token=${verificationToken}`;
-
+  async sendVerificationCode(to: string, code: string): Promise<void> {
     if (!this.resend) {
       this.logger.warn(
-        `RESEND_API_KEY not set — skipping send. Verification link for ${to}: ${verifyUrl}`,
+        `RESEND_API_KEY not set — skipping send. Verification code for ${to}: ${code}`,
       );
       return;
     }
@@ -29,27 +25,21 @@ export class EmailService {
     const { error } = await this.resend.emails.send({
       from: this.fromEmail,
       to,
-      subject: "Verify your AzaisAi email",
+      subject: "Your AzaisAi verification code",
       html: `
         <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
           <h2>Verify your email</h2>
-          <p>Confirm your email address to finish setting up your AzaisAi account.</p>
-          <p>
-            <a href="${verifyUrl}" style="display:inline-block;background:#2563eb;color:#fff;padding:12px 20px;border-radius:6px;text-decoration:none;">
-              Verify email
-            </a>
-          </p>
-          <p>Or paste this link into your browser:</p>
-          <p style="word-break:break-all;color:#666;">${verifyUrl}</p>
-          <p style="color:#999;font-size:12px;">This link expires in 24 hours. If you didn't create this account, ignore this email.</p>
+          <p>Your verification code is:</p>
+          <p style="font-size:32px;font-weight:bold;letter-spacing:6px;color:#2563eb;">${code}</p>
+          <p style="color:#999;font-size:12px;">This code expires in 10 minutes. If you didn't request this, ignore this email.</p>
         </div>
       `,
     });
 
     if (error) {
       // Never let an email-provider outage take down signup — log and move on.
-      // The user can still verify later; a resend endpoint is a future-work item.
-      this.logger.error(`Failed to send verification email to ${to}: ${error.message}`);
+      // The user can request a new code via /auth/resend-code.
+      this.logger.error(`Failed to send verification code to ${to}: ${error.message}`);
     }
   }
 }
