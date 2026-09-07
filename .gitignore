@@ -1,0 +1,27 @@
+# dependencies
+node_modules/
+
+# Next.js
+apps/web/.next/
+
+# NestJS build output
+apps/api/dist/
+
+# Prisma
+apps/api/generated/
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
+# env
+.env
+.env.local
+.env.*.local
+
+# logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
