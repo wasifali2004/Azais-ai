@@ -1,3 +1,8 @@
+// Must run before anything else is imported: modules like AuthModule read
+// process.env at import time (e.g. JwtModule.register()), which happens
+// before ConfigModule.forRoot() would otherwise load .env.
+import "dotenv/config";
+
 import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import helmet from "helmet";

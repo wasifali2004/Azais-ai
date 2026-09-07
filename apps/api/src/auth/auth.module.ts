@@ -13,10 +13,7 @@ import { JwtStrategy } from "./strategies/jwt.strategy";
     EmailModule,
     JwtModule.register({
       secret: process.env.JWT_ACCESS_SECRET,
-      signOptions: {
-        expiresIn: (process.env.JWT_ACCESS_TTL ??
-          "15m") as JwtModuleOptions["signOptions"] extends { expiresIn: infer T } ? T : never,
-      },
+      signOptions: { expiresIn: (process.env.JWT_ACCESS_TTL ?? "15m") as StringValue },
     }),
   ],
   controllers: [AuthController],

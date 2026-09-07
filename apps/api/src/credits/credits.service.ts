@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import type { CreditReason } from "../../generated/prisma/enums";
+import type { CreditReason } from "../generated/prisma/enums";
 import { PrismaService } from "../prisma/prisma.service";
 import { InsufficientCreditsException } from "./insufficient-credits.exception";
 

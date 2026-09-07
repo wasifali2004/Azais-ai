@@ -8,7 +8,7 @@ apps/web/.next/
 apps/api/dist/
 
 # Prisma
-apps/api/generated/
+apps/api/src/generated/
 
 # TypeScript incremental build cache
 *.tsbuildinfo
