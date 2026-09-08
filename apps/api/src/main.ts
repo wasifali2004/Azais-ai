@@ -8,7 +8,29 @@ import { NestFactory } from "@nestjs/core";
 import helmet from "helmet";
 import { AppModule } from "./app.module";
 
+/**
+ * FRONTEND_URL silently falls back to "http://localhost:3000" everywhere
+ * it's used (OAuth callback, billing redirects) — in production that
+ * fallback sends every signed-in user's browser to localhost instead of a
+ * broken-looking error, which is much harder to notice. Fail loudly at
+ * boot instead.
+ */
+function assertFrontendUrlConfigured() {
+  if (process.env.NODE_ENV === "production" && !process.env.FRONTEND_URL) {
+    // eslint-disable-next-line no-console
+    console.error(
+      "FATAL: FRONTEND_URL is not set. In production this would silently " +
+        "redirect signed-in users (Google OAuth, billing checkout) to " +
+        "http://localhost:3000 instead of your real frontend URL. Set " +
+        "FRONTEND_URL to your deployed frontend's URL and redeploy.",
+    );
+    process.exit(1);
+  }
+}
+
 async function bootstrap() {
+  assertFrontendUrlConfigured();
+
   // rawBody: true so the Polar webhook handler can verify the request
   // signature against the exact bytes Polar sent (req.rawBody), not a
   // re-serialized copy of the parsed JSON.
