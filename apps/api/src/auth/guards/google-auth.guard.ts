@@ -34,7 +34,7 @@ export class GoogleAuthGuard extends AuthGuard("google") {
         `Google OAuth callback failed: err=${err instanceof Error ? err.stack : String(err)} info=${String(info)}`,
       );
       const res = context.switchToHttp().getResponse<Response>();
-      const frontendUrl = process.env.FRONTEND_URL ?? "http://localhost:3000";
+      const frontendUrl = (process.env.FRONTEND_URL ?? "http://localhost:3000").replace(/\/+$/, "");
       res.redirect(`${frontendUrl}/login?error=google_auth_failed`);
       return null as TUser;
     }

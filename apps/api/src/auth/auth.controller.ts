@@ -72,7 +72,7 @@ export class AuthController {
     const user = req.user as GoogleAuthenticatedUser;
     const { accessToken } = await this.authService.buildAuthResponse(user);
 
-    const frontendUrl = process.env.FRONTEND_URL ?? "http://localhost:3000";
+    const frontendUrl = (process.env.FRONTEND_URL ?? "http://localhost:3000").replace(/\/+$/, "");
     res.redirect(`${frontendUrl}/auth/callback?token=${accessToken}`);
   }
 }

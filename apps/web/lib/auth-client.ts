@@ -12,7 +12,9 @@ export type Session = {
 };
 
 const STORAGE_KEY = "azaisai_session";
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+// Trailing slash stripped so callers can safely do `${API_URL}/path` without
+// risking a double slash if NEXT_PUBLIC_API_URL was set with one.
+const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000").replace(/\/+$/, "");
 export const SESSION_EVENT = "azaisai:session";
 
 export function saveSession(session: Session) {
@@ -175,4 +177,25 @@ export async function createCheckout(tier: SubscribableTier): Promise<string> {
 
   const data = (await res.json()) as { url: string };
   return data.url;
+}
+
+/**
+ * Confirms a checkout that just redirected back to the success page and, if
+ * it really succeeded, grants the plan — the no-webhook path (see
+ * BillingController.getCheckoutResult).
+ */
+export async function confirmCheckout(checkoutId: string): Promise<{ tier: SubscribableTier }> {
+  const session = getSession();
+  if (!session) {
+    throw new Error("Not signed in");
+  }
+
+  const res = await fetch(`${API_URL}/billing/checkout/${encodeURIComponent(checkoutId)}`, {
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+  });
+  if (!res.ok) {
+    throw new Error(await readErrorMessage(res, "Could not confirm your checkout"));
+  }
+
+  return res.json();
 }

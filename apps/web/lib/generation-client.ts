@@ -1,6 +1,8 @@
 import { getSession, readErrorMessage, updateStoredCredits, type Session } from "@/lib/auth-client";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+// Trailing slash stripped so callers can safely do `${API_URL}/path` without
+// risking a double slash if NEXT_PUBLIC_API_URL was set with one.
+const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000").replace(/\/+$/, "");
 
 export type GenerationType = "IMAGE" | "VIDEO";
 export type GenerationStatus = "PENDING" | "COMPLETE" | "FAILED";

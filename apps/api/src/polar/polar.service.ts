@@ -53,7 +53,7 @@ export class PolarService {
       throw new Error(`No Polar product id configured for tier ${tier} (check .env)`);
     }
 
-    const frontendUrl = process.env.FRONTEND_URL ?? "http://localhost:3000";
+    const frontendUrl = (process.env.FRONTEND_URL ?? "http://localhost:3000").replace(/\/+$/, "");
 
     const checkout = await this.client.checkouts.create({
       products: [productId],
@@ -119,6 +119,52 @@ export class PolarService {
       polarCustomerId: subscription.customerId,
       polarSubscriptionId: subscription.id,
     });
+  }
+
+  /**
+   * Verifies a completed checkout directly against the Polar API and grants
+   * the plan — an alternative to `handleWebhookEvent` for setups that don't
+   * want to stand up a webhook endpoint. Only needs POLAR_ACCESS_TOKEN (no
+   * webhook secret), since it pulls the checkout's state instead of trusting
+   * a pushed event. Called from the success-page redirect, so it's driven by
+   * `checkout_id` rather than a signed payload — the ownership check below is
+   * what stops one user from claiming another's checkout by guessing its id.
+   */
+  async verifyAndGrantCheckout(checkoutId: string, user: { id: string; email: string }): Promise<SubscribableTier> {
+    const checkout = await this.client.checkouts.get({ id: checkoutId });
+
+    if (checkout.status !== "succeeded") {
+      throw new Error(`Checkout has not completed yet (status: ${checkout.status})`);
+    }
+
+    const tier = checkout.productId ? this.tierByProductId.get(checkout.productId) : undefined;
+    if (!tier) {
+      throw new Error("Checkout is for an unrecognized product");
+    }
+
+    const belongsToUser =
+      checkout.externalCustomerId === user.id ||
+      checkout.customerEmail?.toLowerCase() === user.email.toLowerCase() ||
+      (checkout.metadata?.userId as string | undefined) === user.id;
+    if (!belongsToUser) {
+      throw new Error("This checkout does not belong to the signed-in user");
+    }
+
+    const dbUser = await this.prisma.user.findUnique({ where: { id: user.id } });
+    if (dbUser?.polarSubscriptionId && checkout.subscriptionId === dbUser.polarSubscriptionId) {
+      // Already granted — e.g. the success page was reloaded. Avoid double-crediting.
+      return tier;
+    }
+
+    await this.applyPlanUpgrade(
+      user.id,
+      tier,
+      checkout.customerId && checkout.subscriptionId
+        ? { polarCustomerId: checkout.customerId, polarSubscriptionId: checkout.subscriptionId }
+        : undefined,
+    );
+
+    return tier;
   }
 
   /**
