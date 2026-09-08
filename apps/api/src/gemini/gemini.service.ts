@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, ServiceUnavailableException } from "@nestjs/common";
 import { GoogleGenAI, Modality } from "@google/genai";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -14,11 +14,22 @@ const VIDEO_POLL_MAX_ATTEMPTS = 18; // safety cap; the caller enforces the real 
 
 @Injectable()
 export class GeminiService {
-  private readonly logger = new Logger(GeminiService.name);
-  private readonly ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  private ai?: GoogleGenAI;
+
+  private getClient(): GoogleGenAI {
+    const apiKey = process.env.GEMINI_API_KEY?.trim();
+    if (!apiKey) {
+      throw new ServiceUnavailableException(
+        "AI generation is not configured: GEMINI_API_KEY is missing",
+      );
+    }
+
+    this.ai ??= new GoogleGenAI({ apiKey });
+    return this.ai;
+  }
 
   async generateImage(prompt: string, model: string): Promise<GeneratedMedia> {
-    const response = await this.ai.models.generateContent({
+    const response = await this.getClient().models.generateContent({
       model,
       contents: prompt,
       config: { responseModalities: [Modality.IMAGE] },
@@ -36,7 +47,7 @@ export class GeminiService {
   }
 
   async generateText(prompt: string): Promise<string> {
-    const response = await this.ai.models.generateContent({
+    const response = await this.getClient().models.generateContent({
       model: "gemini-2.5-flash",
       contents: prompt,
     });
@@ -55,7 +66,8 @@ export class GeminiService {
     durationSeconds: number,
     aspectRatio: string,
   ): Promise<GeneratedMedia> {
-    let operation = await this.ai.models.generateVideos({
+    const ai = this.getClient();
+    let operation = await ai.models.generateVideos({
       model,
       source: { prompt },
       config: { numberOfVideos: 1, durationSeconds, aspectRatio },
@@ -63,7 +75,7 @@ export class GeminiService {
 
     for (let attempt = 0; !operation.done && attempt < VIDEO_POLL_MAX_ATTEMPTS; attempt++) {
       await new Promise((resolve) => setTimeout(resolve, VIDEO_POLL_INTERVAL_MS));
-      operation = await this.ai.operations.getVideosOperation({ operation });
+      operation = await ai.operations.getVideosOperation({ operation });
     }
 
     if (!operation.done) {
@@ -89,7 +101,7 @@ export class GeminiService {
       const dir = await mkdtemp(join(tmpdir(), "azaisai-video-"));
       const downloadPath = join(dir, "video.mp4");
       try {
-        await this.ai.files.download({ file: generated, downloadPath });
+        await ai.files.download({ file: generated, downloadPath });
         const buffer = await readFile(downloadPath);
         return { buffer, mimeType: generated.mimeType ?? "video/mp4" };
       } finally {

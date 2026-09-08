@@ -22,6 +22,7 @@ apps/api/src/generated/
 *.log
 npm-debug.log*
 .agent-logs/
+.test_email_tmp
 
 # OS
 .DS_Store
