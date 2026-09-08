@@ -14,15 +14,25 @@ import { AppModule } from "./app.module";
  * fallback sends every signed-in user's browser to localhost instead of a
  * broken-looking error, which is much harder to notice. Fail loudly at
  * boot instead.
+ *
+ * NODE_ENV=production isn't guaranteed to be set by every host (Railway's
+ * Nixpacks builder doesn't set it automatically), so also treat any
+ * RAILWAY_* variable — which Railway injects into every deployment
+ * regardless of NODE_ENV — as proof this isn't a local dev run.
  */
 function assertFrontendUrlConfigured() {
-  if (process.env.NODE_ENV === "production" && !process.env.FRONTEND_URL) {
+  const isDeployed =
+    process.env.NODE_ENV === "production" ||
+    Object.keys(process.env).some((key) => key.startsWith("RAILWAY_"));
+
+  if (isDeployed && !process.env.FRONTEND_URL) {
     // eslint-disable-next-line no-console
     console.error(
-      "FATAL: FRONTEND_URL is not set. In production this would silently " +
-        "redirect signed-in users (Google OAuth, billing checkout) to " +
-        "http://localhost:3000 instead of your real frontend URL. Set " +
-        "FRONTEND_URL to your deployed frontend's URL and redeploy.",
+      "FATAL: FRONTEND_URL is not set on this deployment. This would " +
+        "silently redirect signed-in users (Google OAuth, billing " +
+        "checkout) to http://localhost:3000 instead of your real frontend " +
+        "URL. Set FRONTEND_URL to your deployed frontend's URL on THIS " +
+        "backend service specifically (not the frontend service) and redeploy.",
     );
     process.exit(1);
   }
