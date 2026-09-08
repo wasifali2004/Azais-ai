@@ -188,7 +188,7 @@ export const en: Dictionary = {
       "From a single spark of an idea to a fully realized frame — generate cinematic video and gallery-ready images with the world's leading AI models, all inside one focused workspace built to keep you creating.",
     ctaStart: "Start creating free",
     ctaExplore: "Explore the studio",
-    freeCredits: "8 free credits. No card required.",
+    freeCredits: "3 free credits. No card required.",
   },
   features: {
     eyebrow: "A complete creative loop",
@@ -246,7 +246,7 @@ export const en: Dictionary = {
       },
       {
         question: "Do I need a card to start?",
-        answer: "No. Sign up and get 8 free credits to explore the full studio — no card required.",
+        answer: "No. Sign up and get 3 free credits to explore the full studio — no card required.",
       },
       {
         question: "What happens if a generation fails?",
@@ -266,7 +266,7 @@ export const en: Dictionary = {
   ctaMarquee: {
     title: "Start With One Prompt",
     subtitle:
-      "Pick a model, describe the shot, and AzaisAi renders it in one focused studio. Free to try — 8 credits, no card required.",
+      "Pick a model, describe the shot, and AzaisAi renders it in one focused studio. Free to try — 3 credits, no card required.",
     ctaStart: "Start creating free",
     ctaExplore: "Explore the studio",
     items: ["Image generation", "Video generation", "Prompt to render", "Style presets", "Instant renders"],
@@ -283,7 +283,7 @@ export const en: Dictionary = {
   },
   pricing: {
     bannerTitle: "Start your free trial",
-    bannerDesc: "Create an account and verify your email to get 8 free credits. No card required.",
+    bannerDesc: "Create an account and verify your email to get 3 free credits. No card required.",
     perkVideo: "Video generation",
     perkImage: "Image generation",
     perkPremium: "Premium models",
@@ -311,14 +311,14 @@ export const en: Dictionary = {
     backHome: "Back home",
     sideHeading: "One account. Every image and video model.",
     sideSubtitle:
-      "Start with 8 free credits, create in the studio, and keep every completed result in your history.",
-    perkCredits: "8 free credits",
+      "Start with 3 free credits, create in the studio, and keep every completed result in your history.",
+    perkCredits: "3 free credits",
     perkNoCard: "No card required",
     perkHistory: "Image and video history",
     welcomeBack: "Welcome back",
     startFree: "Start creating for free",
     signInSubtitle: "Sign in to continue to your studio.",
-    signUpSubtitle: "Create your account and get 8 free credits.",
+    signUpSubtitle: "Create your account and get 3 free credits.",
     email: "Email",
     password: "Password",
     signIn: "Sign in",
@@ -382,7 +382,7 @@ export const en: Dictionary = {
       "Built For Creators",
     ],
     heading: "Ready to begin?",
-    ctaStart: "Start Free — 8 Credits",
+    ctaStart: "Start Free — 3 Credits",
     ctaExplore: "Explore the Studio",
     privacy: "Privacy Policy",
     terms: "Terms of Service",

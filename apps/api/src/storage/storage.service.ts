@@ -1,47 +1,36 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { v2 as cloudinary } from "cloudinary";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 @Injectable()
 export class StorageService {
   private readonly logger = new Logger(StorageService.name);
-  private readonly configured = Boolean(
-    process.env.CLOUDINARY_CLOUD_NAME &&
-      process.env.CLOUDINARY_API_KEY &&
-      process.env.CLOUDINARY_API_SECRET,
-  );
+  private readonly bucket = process.env.SUPABASE_STORAGE_BUCKET ?? "generations";
+  private readonly client: SupabaseClient | null;
 
   constructor() {
-    cloudinary.config({
-      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-      api_key: process.env.CLOUDINARY_API_KEY,
-      api_secret: process.env.CLOUDINARY_API_SECRET,
-      secure: true,
-    });
+    const url = process.env.SUPABASE_URL;
+    // The *service role* key, not the anon/public key — uploads go through
+    // the server, not a signed-in browser session, so this needs to bypass
+    // row-level security on the bucket. Never expose this key to the client.
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    this.client = url && serviceRoleKey ? createClient(url, serviceRoleKey) : null;
   }
 
-  /** Uploads a buffer to Cloudinary under `key` and returns its public (secure) URL. */
+  /** Uploads a buffer to the Supabase Storage bucket under `key` and returns its public URL. */
   async uploadBuffer(buffer: Buffer, key: string, contentType: string): Promise<string> {
-    if (!this.configured) {
-      throw new Error(
-        "Cloudinary is not configured (CLOUDINARY_CLOUD_NAME/CLOUDINARY_API_KEY/CLOUDINARY_API_SECRET)",
-      );
+    if (!this.client) {
+      throw new Error("Supabase Storage is not configured (SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY)");
     }
 
-    const resourceType = contentType.startsWith("video/") ? "video" : "image";
-
-    return new Promise<string>((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream(
-        { public_id: key, resource_type: resourceType, overwrite: true },
-        (error, result) => {
-          if (error || !result) {
-            reject(error ?? new Error("Cloudinary upload returned no result"));
-            return;
-          }
-          this.logger.log(`Uploaded ${key} (${buffer.byteLength} bytes) to Cloudinary`);
-          resolve(result.secure_url);
-        },
-      );
-      uploadStream.end(buffer);
+    const { error } = await this.client.storage.from(this.bucket).upload(key, buffer, {
+      contentType,
+      upsert: true,
     });
+    if (error) {
+      throw new Error(`Supabase Storage upload failed: ${error.message}`);
+    }
+
+    this.logger.log(`Uploaded ${key} (${buffer.byteLength} bytes) to Supabase Storage`);
+    return this.client.storage.from(this.bucket).getPublicUrl(key).data.publicUrl;
   }
 }

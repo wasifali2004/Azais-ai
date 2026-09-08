@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 export type MobileNavGroup = {
   name: string;
-  items: { label: string; href: string }[];
+  items: { label: string; href: string; onClick?: () => void }[];
 };
 
 export function MobileNav({ nav }: { nav: MobileNavGroup[] }) {
@@ -39,19 +39,33 @@ export function MobileNav({ nav }: { nav: MobileNavGroup[] }) {
               <div className="flex flex-col gap-4" key={category.name}>
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{category.name}</p>
                 <div className="flex flex-col gap-1">
-                  {category.items.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setOpen(false)}
-                      className={cn(
-                        "rounded-lg px-3 py-2.5 text-xl font-medium transition-colors hover:bg-secondary",
-                        pathname === item.href || pathname.startsWith(`${item.href}/`) ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground",
-                      )}
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
+                  {category.items.map((item) =>
+                    item.onClick ? (
+                      <button
+                        key={item.href}
+                        type="button"
+                        onClick={() => {
+                          setOpen(false);
+                          item.onClick?.();
+                        }}
+                        className="rounded-lg px-3 py-2.5 text-left text-xl font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                      >
+                        {item.label}
+                      </button>
+                    ) : (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setOpen(false)}
+                        className={cn(
+                          "rounded-lg px-3 py-2.5 text-xl font-medium transition-colors hover:bg-secondary",
+                          pathname === item.href || pathname.startsWith(`${item.href}/`) ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground",
+                        )}
+                      >
+                        {item.label}
+                      </Link>
+                    ),
+                  )}
                 </div>
               </div>
             ))}

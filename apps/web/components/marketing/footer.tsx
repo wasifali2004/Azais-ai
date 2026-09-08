@@ -23,14 +23,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8">
         <div className="grid gap-10 sm:grid-cols-2">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-sm font-bold text-white">
-                A
-              </span>
-              <span className="text-base font-semibold tracking-tight text-text">
-                AzaisAi
-              </span>
-            </div>
+            <span className="text-lg font-semibold tracking-tight text-text">AzaisAi</span>
             <p className="mt-4 max-w-[26ch] text-sm leading-relaxed text-text-faint">{t.footer.tagline}</p>
           </div>
           {columns.map((col) => (

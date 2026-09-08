@@ -42,8 +42,18 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   ]);
 }
 
-function safeUserMessage(type: "IMAGE" | "VIDEO"): string {
+/** Google returns this for a Gemini API key whose project has no billing account — image/video
+ * models are billing-gated, so this is a hard block, not a transient rate limit. Worth telling
+ * the user the truth instead of "try again", since retrying can't possibly help. */
+function isQuotaExhaustedError(technicalMessage: string): boolean {
+  return /RESOURCE_EXHAUSTED|quota exceeded/i.test(technicalMessage);
+}
+
+function safeUserMessage(type: "IMAGE" | "VIDEO", technicalMessage: string): string {
   const noun = type === "VIDEO" ? "video" : "image";
+  if (isQuotaExhaustedError(technicalMessage)) {
+    return `${noun === "video" ? "Video" : "Image"} generation is temporarily unavailable — the AI provider's usage limit has been reached. Your credits have been refunded; please check back later.`;
+  }
   return `We couldn't generate your ${noun} right now — this can happen with certain prompts or high demand. Your credits have been refunded, feel free to try again.`;
 }
 
@@ -157,7 +167,7 @@ export class GenerationService {
           data: {
             status: "FAILED",
             errorMessage: technicalMessage,
-            userMessage: safeUserMessage(dto.type),
+            userMessage: safeUserMessage(dto.type, technicalMessage),
           },
         }),
         this.prisma.user.update({

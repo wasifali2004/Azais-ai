@@ -22,6 +22,8 @@ interface PricingProps {
   title?: string;
   description?: string;
   id?: string;
+  /** Trims the section's own page-level padding for use inside a modal/panel instead of on a page. */
+  compact?: boolean;
 }
 
 export function Pricing({
@@ -29,13 +31,16 @@ export function Pricing({
   title = "Simple, transparent pricing",
   description = "Pick the plan that matches how much you create. Every plan includes access to all models.",
   id,
+  compact = false,
 }: PricingProps) {
   return (
-    <section id={id} className="scroll-mt-20 bg-bg py-20 sm:py-28">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="mx-auto mb-14 max-w-2xl space-y-4 text-center">
-          <h2 className="text-3xl font-semibold tracking-[-0.035em] text-text sm:text-5xl">{title}</h2>
-          <p className="text-base leading-7 text-text-muted">{description}</p>
+    <section id={id} className={cn("scroll-mt-20 bg-bg", compact ? "py-8 sm:py-10" : "py-20 sm:py-28")}>
+      <div className={cn("mx-auto max-w-7xl px-5 sm:px-8", compact && "px-4 sm:px-6")}>
+        <div className={cn("mx-auto max-w-2xl space-y-3 text-center", compact ? "mb-8" : "mb-14 space-y-4")}>
+          <h2 className={cn("font-semibold tracking-[-0.035em] text-text", compact ? "text-2xl sm:text-3xl" : "text-3xl sm:text-5xl")}>
+            {title}
+          </h2>
+          <p className={cn("text-text-muted", compact ? "text-sm leading-6" : "text-base leading-7")}>{description}</p>
         </div>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

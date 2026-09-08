@@ -19,7 +19,6 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   RotateCcw,
-  Search,
   Shuffle,
   SlidersHorizontal,
   UploadCloud,
@@ -100,7 +99,6 @@ export function StudioShell({ mediaType }: { mediaType: "image" | "video" }) {
   const [balance, setBalance] = useState<number | null>(null);
   const [signedIn, setSignedIn] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
-  const [modelQuery, setModelQuery] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -161,11 +159,6 @@ export function StudioShell({ mediaType }: { mediaType: "image" | "video" }) {
     if (balance !== null && balance < cost) return t.studio.notEnoughCredits;
     return null;
   }, [isVideo, source, uploadName, prompt, catalogEntry, balance, cost, t]);
-
-  const filteredModels = useMemo(
-    () => models.filter((m) => m.name.toLowerCase().includes(modelQuery.toLowerCase())),
-    [models, modelQuery],
-  );
 
   function handleUpload(file: File | undefined) {
     setUploadError(null);
@@ -485,6 +478,11 @@ export function StudioShell({ mediaType }: { mediaType: "image" | "video" }) {
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key !== "Enter" || e.shiftKey) return;
+                  e.preventDefault();
+                  if (status !== "loading" && !disabledReason) handleGenerate();
+                }}
                 placeholder={isVideo ? "Describe the motion (optional)…" : "What do you want to create?"}
                 rows={expanded ? 5 : 1}
                 className="w-full resize-none border-0 bg-transparent p-0 text-sm leading-6 text-text outline-none placeholder:text-text-faint focus:ring-0"
@@ -527,29 +525,19 @@ export function StudioShell({ mediaType }: { mediaType: "image" | "video" }) {
                     {model.name}
                   </span>
                   <div className="flex flex-row-reverse items-center gap-2">
-                    {!signedIn ? (
-                      <Link
-                        href={`/login?next=/studio/${mediaType}`}
-                        className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-white shadow-sm shadow-accent/25 transition-colors hover:bg-accent-hi"
-                        title="Sign in to generate"
-                      >
+                    <button
+                      type="button"
+                      onClick={handleGenerate}
+                      disabled={status === "loading" || !!disabledReason}
+                      title={disabledReason ?? `${cost} ${cost === 1 ? "credit" : "credits"}`}
+                      className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-white shadow-sm shadow-accent/25 transition-colors hover:bg-accent-hi disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      {status === "loading" ? (
+                        <Loader2 size={16} className="animate-spin" />
+                      ) : (
                         <ArrowUp size={16} />
-                      </Link>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={handleGenerate}
-                        disabled={status === "loading" || !!disabledReason}
-                        title={disabledReason ?? `${cost} ${cost === 1 ? "credit" : "credits"}`}
-                        className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-white shadow-sm shadow-accent/25 transition-colors hover:bg-accent-hi disabled:cursor-not-allowed disabled:opacity-40"
-                      >
-                        {status === "loading" ? (
-                          <Loader2 size={16} className="animate-spin" />
-                        ) : (
-                          <ArrowUp size={16} />
-                        )}
-                      </button>
-                    )}
+                      )}
+                    </button>
                     <button
                       type="button"
                       onClick={() => setSettingsOpen(true)}
@@ -585,96 +573,92 @@ export function StudioShell({ mediaType }: { mediaType: "image" | "video" }) {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="fixed right-0 top-20 z-50 flex h-[calc(100svh-5rem)] w-full max-w-sm flex-col overflow-y-auto border-l border-border-soft bg-background p-5 shadow-2xl"
+              className="fixed right-0 top-20 z-50 flex h-[calc(100svh-5rem)] w-full max-w-md flex-col border-l border-border-soft bg-background shadow-2xl"
             >
-              <div className="mb-5 flex items-center justify-between">
+              <div className="flex shrink-0 items-center justify-between border-b border-border-soft px-6 py-5">
                 <h2 className="text-base font-semibold text-text">Generation settings</h2>
                 <button
                   type="button"
                   onClick={() => setSettingsOpen(false)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-text-faint hover:bg-surface-2 hover:text-text"
+                  aria-label="Close"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-text-faint transition-colors hover:bg-surface-2 hover:text-text"
                 >
                   <X size={16} />
                 </button>
               </div>
 
-              <div className="space-y-6">
-                <section>
-                  <p className="mb-2.5 text-xs font-semibold uppercase tracking-[0.1em] text-text-faint">Model</p>
-                  <div className="relative mb-2.5">
-                    <Search size={13} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-faint" />
-                    <input
-                      value={modelQuery}
-                      onChange={(e) => setModelQuery(e.target.value)}
-                      placeholder="Search models…"
-                      className="w-full rounded-lg border border-border-soft bg-bg py-2 pl-8 pr-3 text-sm text-text outline-none placeholder:text-text-faint focus:border-accent/40"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    {filteredModels.map((m) => (
-                      <ModelCard
-                        key={m.id}
-                        model={m}
-                        selected={m.id === modelId}
-                        onSelect={() => setModelId(m.id)}
-                        disabled={catalog[m.id] ? !catalog[m.id].unlocked : false}
-                        disabledReason="Upgrade your plan to use this model"
-                      />
-                    ))}
-                  </div>
-                </section>
-
-                <section>
-                  <p className="mb-2.5 text-xs font-semibold uppercase tracking-[0.1em] text-text-faint">
-                    Aspect ratio
-                  </p>
-                  <AspectRatioPicker options={ASPECT_RATIOS} value={aspect} onChange={setAspect} />
-                </section>
-
-                {isVideo ? (
+              <div className="flex-1 overflow-y-auto px-6 py-6">
+                <div className="space-y-7">
                   <section>
-                    <p className="mb-2.5 text-xs font-semibold uppercase tracking-[0.1em] text-text-faint">Duration</p>
-                    <div className="flex gap-2">
-                      {durations.map((d) => (
-                        <button
-                          key={d}
-                          type="button"
-                          onClick={() => setDuration(d)}
-                          className={cn(
-                            "flex-1 rounded-lg border py-2.5 text-sm font-medium transition-all",
-                            duration === d
-                              ? "border-accent/60 bg-accent-wash text-accent-hi"
-                              : "border-border-soft bg-bg text-text-faint hover:text-text-muted",
-                          )}
-                        >
-                          {d}s
-                        </button>
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-[0.1em] text-text-faint">Model</p>
+                    <div className="flex flex-col gap-2">
+                      {models.map((m) => (
+                        <ModelCard
+                          key={m.id}
+                          model={m}
+                          selected={m.id === modelId}
+                          onSelect={() => setModelId(m.id)}
+                          disabled={catalog[m.id] ? !catalog[m.id].unlocked : false}
+                          disabledReason={t.studio.upgradeToUseModel}
+                        />
                       ))}
                     </div>
                   </section>
-                ) : (
-                  <section>
-                    <p className="mb-2.5 text-xs font-semibold uppercase tracking-[0.1em] text-text-faint">Style</p>
-                    <StyleCards options={IMAGE_STYLES} value={style} onChange={setStyle} />
-                  </section>
-                )}
 
-                <div className="flex items-center justify-between rounded-lg bg-bg px-3 py-2.5 text-sm">
-                  <span className="text-text-faint">Estimated cost</span>
-                  <span className="flex items-center gap-1.5 font-semibold text-text">
-                    <Zap size={12} className="text-accent-hi" />
-                    {cost} {cost === 1 ? "credit" : "credits"}
-                  </span>
+                  <section className="border-t border-border-soft pt-6">
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-[0.1em] text-text-faint">
+                      Aspect ratio
+                    </p>
+                    <AspectRatioPicker options={ASPECT_RATIOS} value={aspect} onChange={setAspect} />
+                  </section>
+
+                  {isVideo ? (
+                    <section className="border-t border-border-soft pt-6">
+                      <p className="mb-3 text-xs font-semibold uppercase tracking-[0.1em] text-text-faint">Duration</p>
+                      <div className="flex gap-2">
+                        {durations.map((d) => (
+                          <button
+                            key={d}
+                            type="button"
+                            aria-pressed={duration === d}
+                            onClick={() => setDuration(d)}
+                            className={cn(
+                              "flex-1 rounded-lg border py-2.5 text-sm font-medium transition-all",
+                              duration === d
+                                ? "border-accent bg-accent-wash text-accent-hi"
+                                : "border-border-soft bg-surface text-text-faint hover:border-border hover:bg-surface-2",
+                            )}
+                          >
+                            {d}s
+                          </button>
+                        ))}
+                      </div>
+                    </section>
+                  ) : (
+                    <section className="border-t border-border-soft pt-6">
+                      <p className="mb-3 text-xs font-semibold uppercase tracking-[0.1em] text-text-faint">Style</p>
+                      <StyleCards options={IMAGE_STYLES} value={style} onChange={setStyle} />
+                    </section>
+                  )}
                 </div>
               </div>
 
-              <InteractiveHoverButton
-                type="button"
-                text={t.studio.done}
-                fullWidth
-                onClick={() => setSettingsOpen(false)}
-                className="mt-6"
-              />
+              <div className="shrink-0 border-t border-border-soft bg-surface px-6 py-5">
+                <div className="mb-4 flex items-center justify-between text-sm">
+                  <span className="text-text-faint">{t.studio.estimatedCost}</span>
+                  <span className="flex items-center gap-1.5 font-semibold text-text">
+                    <Zap size={13} className="text-accent-hi" />
+                    {cost} {cost === 1 ? t.studio.credit : t.studio.credits}
+                  </span>
+                </div>
+                <InteractiveHoverButton
+                  type="button"
+                  text={t.studio.done}
+                  fullWidth
+                  size="lg"
+                  onClick={() => setSettingsOpen(false)}
+                />
+              </div>
             </motion.aside>
           </>
         )}

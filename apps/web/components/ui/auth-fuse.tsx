@@ -15,6 +15,7 @@ import {
   apiResendCode,
   apiSignup,
   apiVerifyEmail,
+  EmailNotVerifiedError,
   googleAuthUrl,
   saveSession,
 } from "@/lib/auth-client";
@@ -191,7 +192,13 @@ function GoogleButton() {
   );
 }
 
-function SignInForm({ nextPath }: { nextPath: string }) {
+function SignInForm({
+  nextPath,
+  onNeedsVerification,
+}: {
+  nextPath: string;
+  onNeedsVerification: (pending: { email: string; password: string }) => void;
+}) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -201,12 +208,27 @@ function SignInForm({ nextPath }: { nextPath: string }) {
     setError(null);
     setLoading(true);
     const form = new FormData(event.currentTarget);
+    const email = String(form.get("email") ?? "");
+    const password = String(form.get("password") ?? "");
     try {
-      const session = await apiLogin(String(form.get("email") ?? ""), String(form.get("password") ?? ""));
+      const session = await apiLogin(email, password);
       saveSession(session);
       toast.success("Welcome back!");
       router.replace(nextPath);
     } catch (err) {
+      if (err instanceof EmailNotVerifiedError) {
+        // They have the right password — just never finished verifying. Send a
+        // fresh code (the cooldown on the backend makes this safe to call
+        // unconditionally) and drop them straight into the verify screen
+        // instead of just showing an error they can't act on.
+        apiResendCode(email).catch(() => {});
+        toast.message("Verify your email to continue", {
+          description: "We've sent a fresh code to your inbox.",
+        });
+        onNeedsVerification({ email, password });
+        setLoading(false);
+        return;
+      }
       const message = err instanceof Error ? err.message : "Something went wrong";
       setError(message);
       toast.error(message);
@@ -375,7 +397,7 @@ function AuthFormContainer({
       {pending ? (
         <VerifyForm email={pending.email} password={pending.password} nextPath={nextPath} />
       ) : isSignIn ? (
-        <SignInForm nextPath={nextPath} />
+        <SignInForm nextPath={nextPath} onNeedsVerification={setPending} />
       ) : (
         <SignUpForm onVerifying={setPending} />
       )}

@@ -71,6 +71,14 @@ export async function readErrorMessage(res: Response, fallback: string): Promise
   return (body?.message as string | undefined) ?? fallback;
 }
 
+/** Thrown by apiLogin when the credentials are correct but the account's email isn't verified yet. */
+export class EmailNotVerifiedError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "EmailNotVerifiedError";
+  }
+}
+
 export async function apiLogin(email: string, password: string): Promise<Session> {
   const res = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
@@ -78,7 +86,11 @@ export async function apiLogin(email: string, password: string): Promise<Session
     body: JSON.stringify({ email, password }),
   });
   if (!res.ok) {
-    throw new Error(await readErrorMessage(res, "Invalid email or password"));
+    const message = await readErrorMessage(res, "Invalid email or password");
+    if (res.status === 403) {
+      throw new EmailNotVerifiedError(message);
+    }
+    throw new Error(message);
   }
   return res.json();
 }

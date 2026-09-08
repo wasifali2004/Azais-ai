@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   Logger,
   ServiceUnavailableException,
@@ -196,6 +197,13 @@ export class AuthService {
     const passwordMatches = await bcrypt.compare(dto.password, user.passwordHash);
     if (!passwordMatches) {
       throw invalidCredentials();
+    }
+
+    // A distinct status (403, not 401) so the frontend can tell "wrong password"
+    // apart from "right password, but this account was never verified" and route
+    // to the verification screen instead of just showing an error.
+    if (!user.isVerified) {
+      throw new ForbiddenException("Please verify your email before signing in.");
     }
 
     return this.buildAuthResponse(user);

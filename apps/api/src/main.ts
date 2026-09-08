@@ -16,8 +16,15 @@ async function bootstrap() {
 
   app.use(helmet());
 
+  const allowedOrigins = (
+    process.env.CORS_ORIGIN ?? "http://localhost:3000"
+  )
+    .split(",")
+    .map((origin) => origin.trim().replace(/\/$/, ""))
+    .filter(Boolean);
+
   app.enableCors({
-    origin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
+    origin: allowedOrigins,
   });
 
   app.useGlobalPipes(
@@ -28,8 +35,8 @@ async function bootstrap() {
     }),
   );
 
-  const port = process.env.PORT ?? 4000;
-  await app.listen(port);
+  const port = Number(process.env.PORT ?? 4000);
+  await app.listen(port, "0.0.0.0");
 }
 
 bootstrap();

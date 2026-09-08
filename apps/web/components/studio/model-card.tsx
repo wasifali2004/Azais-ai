@@ -23,32 +23,32 @@ export function ModelCard({
       type="button"
       onClick={disabled ? undefined : onSelect}
       aria-disabled={disabled}
+      aria-pressed={selected}
       title={disabled ? disabledReason : undefined}
       whileTap={disabled ? undefined : { scale: 0.99 }}
       className={cn(
-        "group relative flex flex-col gap-1 rounded-lg border px-3 py-2.5 text-left transition-colors duration-150",
-        disabled && "cursor-not-allowed border-border-soft bg-bg opacity-50",
+        "flex w-full items-center justify-between gap-3 rounded-lg border px-3.5 py-3 text-left transition-colors duration-150",
+        disabled && "cursor-not-allowed border-border-soft bg-surface opacity-50",
         !disabled &&
-          (selected
-            ? "border-accent/50 bg-accent-wash"
-            : "border-border-soft bg-bg hover:border-border"),
+          (selected ? "border-accent/50 bg-accent-wash" : "border-border-soft bg-surface hover:border-border"),
       )}
     >
-      <div className="flex items-center justify-between gap-2">
+      <div className="min-w-0">
         <p className="flex items-center gap-1.5 text-sm font-medium text-text">
-          {model.name}
-          {model.hasAudio && <Volume2 size={11} className="text-text-faint" />}
+          <span className="truncate">{model.name}</span>
+          {model.hasAudio && <Volume2 size={12} className="shrink-0 text-text-faint" />}
         </p>
-        {disabled ? (
-          <Lock size={12} className="shrink-0 text-text-faint" />
-        ) : (
-          selected && <Check size={13} className="shrink-0 text-accent-hi" />
-        )}
+        <p className="mt-0.5 text-xs text-text-faint">
+          {model.costPerUnit} · {model.eta}
+          {model.badge && !disabled && <span className="text-text-faint/80"> · {model.badge}</span>}
+        </p>
       </div>
-      <p className="text-xs text-text-faint">
-        {model.costPerUnit} · {model.eta}
-        {model.badge && !disabled && <span className="ml-1 text-text-faint/80">· {model.badge}</span>}
-      </p>
+
+      {disabled ? (
+        <Lock size={14} className="shrink-0 text-text-faint" />
+      ) : (
+        selected && <Check size={15} className="shrink-0 text-accent-hi" />
+      )}
     </motion.button>
   );
 }

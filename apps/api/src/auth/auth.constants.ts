@@ -1,5 +1,5 @@
 /** Credits granted to a new account on signup — matches the product's free-trial offer. */
-export const SIGNUP_BONUS_CREDITS = 8;
+export const SIGNUP_BONUS_CREDITS = 3;
 
 /** bcrypt cost factor. 12 is the current OWASP-recommended minimum. */
 export const BCRYPT_SALT_ROUNDS = 12;

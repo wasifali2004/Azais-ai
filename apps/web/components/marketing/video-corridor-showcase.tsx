@@ -7,10 +7,6 @@ const CLOUDINARY = "https://res.cloudinary.com/dvqs3grvi/video/upload";
 
 const VIDEOS: StreamImage[] = [
   {
-    src: `${CLOUDINARY}/v1788800455/AI_interviews_the_people_onboard_the_Titanic_1080p_wofxmt.mp4`,
-    alt: "AI-reimagined interview with people aboard the Titanic",
-  },
-  {
     src: `${CLOUDINARY}/v1788798787/social_skunkamatic_nuclear_explosion_in_the_desolate_dry_desert_the__c4e7b486-a9fc-4efd-82ec-3c9ada5a8236_0_npxxvv.mp4`,
     alt: "Nuclear explosion in a desolate desert landscape",
   },

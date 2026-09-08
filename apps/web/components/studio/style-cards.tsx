@@ -12,19 +12,20 @@ export function StyleCards({
   onChange: (v: string) => void;
 }) {
   return (
-    <div className="flex flex-wrap gap-1.5">
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
       {options.map((style) => {
         const active = style === value;
         return (
           <button
             key={style}
             type="button"
+            aria-pressed={active}
             onClick={() => onChange(style)}
             className={cn(
-              "rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
+              "rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors",
               active
-                ? "border-accent/50 bg-accent-wash text-accent-hi"
-                : "border-border-soft bg-bg text-text-faint hover:border-border hover:text-text-muted",
+                ? "border-accent bg-accent-wash text-accent-hi"
+                : "border-border-soft bg-surface text-text-muted hover:border-border hover:bg-surface-2",
             )}
           >
             {style}

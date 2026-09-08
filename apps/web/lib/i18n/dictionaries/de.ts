@@ -24,7 +24,7 @@ export const de: Dictionary = {
       "Vom ersten Funken einer Idee bis zum fertigen Bild — erzeuge cineastische Videos und galerie-reife Bilder mit den weltweit führenden KI-Modellen, alles in einem einzigen Arbeitsbereich, der dich im kreativen Fluss hält.",
     ctaStart: "Kostenlos loslegen",
     ctaExplore: "Studio entdecken",
-    freeCredits: "8 kostenlose Credits. Keine Kreditkarte nötig.",
+    freeCredits: "3 kostenlose Credits. Keine Kreditkarte nötig.",
   },
   features: {
     eyebrow: "Ein vollständiger kreativer Kreislauf",
@@ -80,7 +80,7 @@ export const de: Dictionary = {
       },
       {
         question: "Brauche ich eine Karte zum Starten?",
-        answer: "Nein. Registriere dich und erhalte 8 kostenlose Credits, um das gesamte Studio zu erkunden — keine Karte nötig.",
+        answer: "Nein. Registriere dich und erhalte 3 kostenlose Credits, um das gesamte Studio zu erkunden — keine Karte nötig.",
       },
       {
         question: "Was passiert, wenn eine Generierung fehlschlägt?",
@@ -100,7 +100,7 @@ export const de: Dictionary = {
   ctaMarquee: {
     title: "Starte mit einem Prompt",
     subtitle:
-      "Wähle ein Modell, beschreibe die Szene, und AzaisAi rendert sie in einem einzigen fokussierten Studio. Kostenlos testen — 8 Credits, keine Karte nötig.",
+      "Wähle ein Modell, beschreibe die Szene, und AzaisAi rendert sie in einem einzigen fokussierten Studio. Kostenlos testen — 3 Credits, keine Karte nötig.",
     ctaStart: "Kostenlos loslegen",
     ctaExplore: "Studio entdecken",
     items: ["Bilderzeugung", "Videoerzeugung", "Vom Prompt zum Rendering", "Stilvorlagen", "Sofortiges Rendern"],
@@ -117,7 +117,7 @@ export const de: Dictionary = {
   },
   pricing: {
     bannerTitle: "Starte deine kostenlose Testphase",
-    bannerDesc: "Erstelle ein Konto und bestätige deine E-Mail, um 8 kostenlose Credits zu erhalten. Keine Kreditkarte nötig.",
+    bannerDesc: "Erstelle ein Konto und bestätige deine E-Mail, um 3 kostenlose Credits zu erhalten. Keine Kreditkarte nötig.",
     perkVideo: "Videoerzeugung",
     perkImage: "Bilderzeugung",
     perkPremium: "Premium-Modelle",
@@ -145,14 +145,14 @@ export const de: Dictionary = {
     backHome: "Zurück zur Startseite",
     sideHeading: "Ein Konto. Jedes Bild- und Videomodell.",
     sideSubtitle:
-      "Starte mit 8 kostenlosen Credits, erstelle im Studio und behalte jedes fertige Ergebnis in deinem Verlauf.",
-    perkCredits: "8 kostenlose Credits",
+      "Starte mit 3 kostenlosen Credits, erstelle im Studio und behalte jedes fertige Ergebnis in deinem Verlauf.",
+    perkCredits: "3 kostenlose Credits",
     perkNoCard: "Keine Kreditkarte nötig",
     perkHistory: "Bild- und Videoverlauf",
     welcomeBack: "Willkommen zurück",
     startFree: "Kostenlos loslegen",
     signInSubtitle: "Melde dich an, um mit deinem Studio fortzufahren.",
-    signUpSubtitle: "Erstelle dein Konto und erhalte 8 kostenlose Credits.",
+    signUpSubtitle: "Erstelle dein Konto und erhalte 3 kostenlose Credits.",
     email: "E-Mail",
     password: "Passwort",
     signIn: "Anmelden",
@@ -216,7 +216,7 @@ export const de: Dictionary = {
       "Gemacht für Kreative",
     ],
     heading: "Bereit loszulegen?",
-    ctaStart: "Kostenlos starten — 8 Credits",
+    ctaStart: "Kostenlos starten — 3 Credits",
     ctaExplore: "Studio entdecken",
     privacy: "Datenschutzrichtlinie",
     terms: "Nutzungsbedingungen",

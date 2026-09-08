@@ -9,8 +9,10 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { MobileNav } from "@/components/ui/navbar";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { InteractiveHoverButton, LogoutButton } from "@/components/ui/interactive-hover-button";
+import { PricingModal } from "@/components/marketing/pricing-modal";
 import { clearSession, fetchProfile, getSession, saveSession, SESSION_EVENT } from "@/lib/auth-client";
 import { useLanguage } from "@/lib/i18n/context";
+import { usePricingPlans } from "@/hooks/use-pricing-plans";
 import { cn } from "@/lib/utils";
 
 export function Navbar() {
@@ -19,6 +21,15 @@ export function Navbar() {
   const { t } = useLanguage();
   const [signedIn, setSignedIn] = useState(false);
   const [credits, setCredits] = useState(0);
+  const [pricingOpen, setPricingOpen] = useState(false);
+  const plans = usePricingPlans();
+
+  const inStudio = pathname.startsWith("/studio");
+  // In studio, opening the pricing link would navigate away mid-session — show it as a
+  // popup instead. Elsewhere it's a real link to the homepage's pricing section.
+  const pricingItem = inStudio
+    ? { href: "/#pricing", label: t.nav.pricing, onClick: () => setPricingOpen(true) }
+    : { href: "/#pricing", label: t.nav.pricing };
 
   const AUTHENTICATED_NAV = [
     {
@@ -28,7 +39,7 @@ export function Navbar() {
         { href: "/studio/video", label: t.nav.video },
         { href: "/studio/image", label: t.nav.image },
         { href: "/history", label: t.nav.history },
-        { href: "/#pricing", label: t.nav.pricing },
+        pricingItem,
       ],
     },
   ];
@@ -39,7 +50,7 @@ export function Navbar() {
       items: [
         { href: "/", label: t.nav.home },
         { href: "/#features", label: t.nav.features },
-        { href: "/#pricing", label: t.nav.pricing },
+        pricingItem,
         { href: "/#faq", label: t.nav.faq },
       ],
     },
@@ -57,7 +68,6 @@ export function Navbar() {
     router.push("/");
   }
 
-  const inStudio = pathname.startsWith("/studio");
   const NAVIGATION = signedIn ? AUTHENTICATED_NAV : GUEST_NAV;
 
   useEffect(() => {
@@ -80,42 +90,29 @@ export function Navbar() {
   }, [syncSession]);
 
   return (
+    <>
     <header className="sticky top-0 z-50 h-20 w-full bg-background/95 backdrop-blur-xl">
       <div className="relative flex h-full w-full items-center gap-4 px-4 sm:px-6 lg:grid lg:grid-cols-3">
         <div className="flex flex-1 items-center justify-start">
-          <Link href="/" aria-label="AzaisAi home" className="group inline-flex items-center gap-3 text-foreground">
-            <svg
-              viewBox="0 0 40 40"
-              role="img"
-              aria-hidden="true"
-              className="size-10 shrink-0 overflow-visible drop-shadow-[0_8px_16px_rgba(37,99,235,0.18)] transition-transform duration-300 group-hover:scale-[1.04]"
-            >
-              <defs>
-                <linearGradient id="azais-mark" x1="7" y1="4" x2="33" y2="36" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#3B82F6" />
-                  <stop offset="1" stopColor="#1D4ED8" />
-                </linearGradient>
-              </defs>
-              <rect x="2" y="2" width="36" height="36" rx="11" fill="url(#azais-mark)" />
-              <path
-                d="m10.8 28.2 7.45-16.1c.7-1.52 2.8-1.52 3.5 0l7.45 16.1"
-                fill="none"
-                stroke="white"
-                strokeWidth="4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path d="M15.2 23h9.6" stroke="white" strokeWidth="4" strokeLinecap="round" />
-              <circle cx="30.5" cy="9.5" r="2.2" fill="#BFDBFE" />
-            </svg>
-            <span className="text-base font-semibold tracking-[-0.04em]">
-              Azais<span className="text-primary">Ai</span>
-            </span>
+          <Link href="/" aria-label="AzaisAi home" className="group inline-flex items-center text-foreground">
+            <span className="logo-shine animate-text-shine text-lg font-semibold tracking-tight">AzaisAi</span>
           </Link>
         </div>
 
         <nav className="hidden items-center justify-center gap-1 lg:flex" aria-label="Main navigation">
           {NAVIGATION[0].items.filter((item) => item.href !== "/history").map((item) => {
+            if (item.onClick) {
+              return (
+                <button
+                  key={item.href}
+                  type="button"
+                  onClick={item.onClick}
+                  className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                >
+                  {item.label}
+                </button>
+              );
+            }
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
               <Link
@@ -182,5 +179,13 @@ export function Navbar() {
         </div>
       </div>
     </header>
+    <PricingModal
+      open={pricingOpen}
+      onClose={() => setPricingOpen(false)}
+      plans={plans}
+      title={t.pricing.plansTitle}
+      description={t.pricing.plansDesc}
+    />
+    </>
   );
 }

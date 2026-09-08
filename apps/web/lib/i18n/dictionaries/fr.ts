@@ -24,7 +24,7 @@ export const fr: Dictionary = {
       "D'une simple étincelle d'idée à une image pleinement réalisée — générez des vidéos cinématographiques et des images dignes d'une galerie avec les meilleurs modèles d'IA au monde, le tout dans un seul espace de travail conçu pour vous garder en pleine création.",
     ctaStart: "Créer gratuitement",
     ctaExplore: "Découvrir le studio",
-    freeCredits: "8 crédits gratuits. Aucune carte requise.",
+    freeCredits: "3 crédits gratuits. Aucune carte requise.",
   },
   features: {
     eyebrow: "Un cycle créatif complet",
@@ -81,7 +81,7 @@ export const fr: Dictionary = {
       },
       {
         question: "Ai-je besoin d'une carte pour commencer ?",
-        answer: "Non. Inscrivez-vous et obtenez 8 crédits gratuits pour explorer tout le studio — aucune carte requise.",
+        answer: "Non. Inscrivez-vous et obtenez 3 crédits gratuits pour explorer tout le studio — aucune carte requise.",
       },
       {
         question: "Que se passe-t-il si une génération échoue ?",
@@ -101,7 +101,7 @@ export const fr: Dictionary = {
   ctaMarquee: {
     title: "Commencez avec un seul prompt",
     subtitle:
-      "Choisissez un modèle, décrivez le plan, et AzaisAi le génère dans un seul studio ciblé. Gratuit à essayer — 8 crédits, sans carte.",
+      "Choisissez un modèle, décrivez le plan, et AzaisAi le génère dans un seul studio ciblé. Gratuit à essayer — 3 crédits, sans carte.",
     ctaStart: "Créer gratuitement",
     ctaExplore: "Découvrir le studio",
     items: ["Génération d'image", "Génération de vidéo", "Du prompt au rendu", "Styles prédéfinis", "Rendus instantanés"],
@@ -118,7 +118,7 @@ export const fr: Dictionary = {
   },
   pricing: {
     bannerTitle: "Démarrez votre essai gratuit",
-    bannerDesc: "Créez un compte et vérifiez votre e-mail pour obtenir 8 crédits gratuits. Aucune carte requise.",
+    bannerDesc: "Créez un compte et vérifiez votre e-mail pour obtenir 3 crédits gratuits. Aucune carte requise.",
     perkVideo: "Génération de vidéo",
     perkImage: "Génération d'image",
     perkPremium: "Modèles premium",
@@ -146,14 +146,14 @@ export const fr: Dictionary = {
     backHome: "Retour à l'accueil",
     sideHeading: "Un seul compte. Tous les modèles d'image et de vidéo.",
     sideSubtitle:
-      "Commencez avec 8 crédits gratuits, créez dans le studio et conservez chaque résultat dans votre historique.",
-    perkCredits: "8 crédits gratuits",
+      "Commencez avec 3 crédits gratuits, créez dans le studio et conservez chaque résultat dans votre historique.",
+    perkCredits: "3 crédits gratuits",
     perkNoCard: "Aucune carte requise",
     perkHistory: "Historique image et vidéo",
     welcomeBack: "Content de vous revoir",
     startFree: "Créez gratuitement",
     signInSubtitle: "Connectez-vous pour continuer vers votre studio.",
-    signUpSubtitle: "Créez votre compte et obtenez 8 crédits gratuits.",
+    signUpSubtitle: "Créez votre compte et obtenez 3 crédits gratuits.",
     email: "E-mail",
     password: "Mot de passe",
     signIn: "Se connecter",
@@ -217,7 +217,7 @@ export const fr: Dictionary = {
       "Conçu pour les créateurs",
     ],
     heading: "Prêt à commencer ?",
-    ctaStart: "Essai gratuit — 8 crédits",
+    ctaStart: "Essai gratuit — 3 crédits",
     ctaExplore: "Découvrir le studio",
     privacy: "Politique de confidentialité",
     terms: "Conditions d'utilisation",
