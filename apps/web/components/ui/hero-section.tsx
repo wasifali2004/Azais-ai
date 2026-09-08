@@ -1,11 +1,25 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
 import { GridPattern } from "@/components/ui/grid-pattern";
+import { getSession, SESSION_EVENT } from "@/lib/auth-client";
 import { useLanguage } from "@/lib/i18n/context";
 
 export default function HeroSection() {
   const { t } = useLanguage();
+  const [signedIn, setSignedIn] = useState(false);
+
+  useEffect(() => {
+    const syncSession = () => setSignedIn(!!getSession());
+    syncSession();
+    window.addEventListener(SESSION_EVENT, syncSession);
+    window.addEventListener("storage", syncSession);
+    return () => {
+      window.removeEventListener(SESSION_EVENT, syncSession);
+      window.removeEventListener("storage", syncSession);
+    };
+  }, []);
 
   return (
     <section className="relative overflow-hidden bg-bg">
@@ -36,8 +50,8 @@ export default function HeroSection() {
           className="animate-fade-up mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row"
         >
           <InteractiveHoverButton
-            href="/signup?next=/studio/image"
-            text={t.hero.ctaStart}
+            href={signedIn ? "/studio/image" : "/signup?next=/studio/image"}
+            text={signedIn ? t.nav.openStudio : t.hero.ctaStart}
             size="lg"
             className="w-full sm:w-auto"
           />

@@ -1,11 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Clapperboard, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getSession, SESSION_EVENT } from "@/lib/auth-client";
 import { useLanguage } from "@/lib/i18n/context";
 
 if (typeof window !== "undefined") {
@@ -211,6 +212,18 @@ export function CinematicFooter() {
   const giantTextRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const linksRef = useRef<HTMLDivElement>(null);
+  const [signedIn, setSignedIn] = useState(false);
+
+  useEffect(() => {
+    const syncSession = () => setSignedIn(!!getSession());
+    syncSession();
+    window.addEventListener(SESSION_EVENT, syncSession);
+    window.addEventListener("storage", syncSession);
+    return () => {
+      window.removeEventListener(SESSION_EVENT, syncSession);
+      window.removeEventListener("storage", syncSession);
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -291,11 +304,11 @@ export function CinematicFooter() {
               <div className="flex flex-wrap justify-center gap-4 w-full">
                 <MagneticButton
                   as="a"
-                  href="/signup"
+                  href={signedIn ? "/studio/image" : "/signup?next=/studio/image"}
                   className="footer-glass-pill px-10 py-5 rounded-full text-foreground font-bold text-sm md:text-base flex items-center gap-3 group"
                 >
                   <Sparkles className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-                  {t.cinematicFooter.ctaStart}
+                  {signedIn ? t.nav.openStudio : t.cinematicFooter.ctaStart}
                 </MagneticButton>
 
                 <MagneticButton

@@ -1,8 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { ReactNode, useEffect, useRef } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
+import { getSession, SESSION_EVENT } from "@/lib/auth-client";
 import { useLanguage } from "@/lib/i18n/context";
 
 interface VerticalMarqueeProps {
@@ -67,6 +68,18 @@ function VerticalMarquee({
 export default function CTAWithVerticalMarquee() {
   const { t } = useLanguage();
   const marqueeRef = useRef<HTMLDivElement>(null);
+  const [signedIn, setSignedIn] = useState(false);
+
+  useEffect(() => {
+    const syncSession = () => setSignedIn(!!getSession());
+    syncSession();
+    window.addEventListener(SESSION_EVENT, syncSession);
+    window.addEventListener("storage", syncSession);
+    return () => {
+      window.removeEventListener(SESSION_EVENT, syncSession);
+      window.removeEventListener("storage", syncSession);
+    };
+  }, []);
 
   useEffect(() => {
     const marqueeContainer = marqueeRef.current;
@@ -112,8 +125,8 @@ export default function CTAWithVerticalMarquee() {
             </p>
             <div className="flex animate-fade-in-up flex-wrap gap-4 [animation-delay:600ms]">
               <InteractiveHoverButton
-                href="/signup?next=/studio/image"
-                text={t.ctaMarquee.ctaStart}
+                href={signedIn ? "/studio/image" : "/signup?next=/studio/image"}
+                text={signedIn ? t.nav.openStudio : t.ctaMarquee.ctaStart}
                 size="lg"
               />
               <InteractiveHoverButton href="/studio/video" text={t.ctaMarquee.ctaExplore} size="lg" />
