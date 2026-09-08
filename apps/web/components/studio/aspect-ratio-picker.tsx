@@ -20,7 +20,7 @@ export function AspectRatioPicker({
   onChange: (v: string) => void;
 }) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="grid grid-cols-5 gap-1.5">
       {options.map((ratio) => {
         const active = ratio === value;
         return (
@@ -29,9 +29,9 @@ export function AspectRatioPicker({
             type="button"
             onClick={() => onChange(ratio)}
             className={cn(
-              "flex w-16 flex-col items-center gap-2 rounded-lg border py-2.5 text-xs font-medium transition-all",
+              "flex min-w-0 flex-col items-center gap-2 rounded-lg border py-2.5 text-[11px] font-medium transition-all",
               active
-                ? "border-accent/60 bg-accent-wash text-accent-hi"
+                ? "border-accent bg-accent-wash text-accent-hi"
                 : "border-border-soft bg-surface text-text-faint hover:border-border hover:text-text-muted",
             )}
           >

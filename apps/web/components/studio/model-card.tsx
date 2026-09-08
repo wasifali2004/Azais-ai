@@ -1,18 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Volume2, Zap } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Check, Lock, Volume2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { GenerationModel } from "@/lib/models";
-
-const badgeTone: Record<string, "accent" | "solid" | "muted"> = {
-  POPULAR: "solid",
-  NEW: "accent",
-  PREMIUM: "muted",
-  FAST: "accent",
-  "4K": "muted",
-};
 
 export function ModelCard({
   model,
@@ -33,46 +24,31 @@ export function ModelCard({
       onClick={disabled ? undefined : onSelect}
       aria-disabled={disabled}
       title={disabled ? disabledReason : undefined}
-      whileTap={disabled ? undefined : { scale: 0.98 }}
+      whileTap={disabled ? undefined : { scale: 0.99 }}
       className={cn(
-        "group relative flex flex-col gap-3 rounded-xl border p-3.5 text-left transition-all duration-200",
-        disabled &&
-          "cursor-not-allowed border-border-soft bg-surface opacity-50 hover:translate-y-0 hover:shadow-none",
+        "group relative flex flex-col gap-1 rounded-lg border px-3 py-2.5 text-left transition-colors duration-150",
+        disabled && "cursor-not-allowed border-border-soft bg-bg opacity-50",
         !disabled &&
           (selected
-            ? "border-accent/60 bg-accent-wash shadow-[0_0_0_1px_var(--accent)_inset,0_12px_28px_-14px_var(--accent)]"
-            : "border-border-soft bg-surface hover:-translate-y-0.5 hover:border-accent/30 hover:shadow-[0_14px_30px_-16px_var(--accent)]"),
+            ? "border-accent/50 bg-accent-wash"
+            : "border-border-soft bg-bg hover:border-border"),
       )}
     >
-      {disabled ? (
-        <Badge tone="muted" className="absolute right-3 top-3">
-          LOCKED
-        </Badge>
-      ) : (
-        model.badge && (
-          <Badge tone={badgeTone[model.badge] ?? "accent"} className="absolute right-3 top-3">
-            {model.badge}
-          </Badge>
-        )
-      )}
-      <div
-        className={cn(
-          "flex h-9 w-9 items-center justify-center rounded-lg font-display text-sm font-medium transition-colors",
-          selected && !disabled ? "bg-text text-bg" : "bg-surface-2 text-accent-hi",
-        )}
-      >
-        {model.initials}
-      </div>
-      <div>
-        <p className="flex items-center gap-1.5 text-sm font-semibold text-text">
+      <div className="flex items-center justify-between gap-2">
+        <p className="flex items-center gap-1.5 text-sm font-medium text-text">
           {model.name}
-          {model.hasAudio && <Volume2 size={12} className="text-text-faint" />}
+          {model.hasAudio && <Volume2 size={11} className="text-text-faint" />}
         </p>
-        <p className="mt-0.5 flex items-center gap-1 text-xs text-text-faint">
-          <Zap size={11} className="text-accent-hi" />
-          {model.costPerUnit} · {model.eta}
-        </p>
+        {disabled ? (
+          <Lock size={12} className="shrink-0 text-text-faint" />
+        ) : (
+          selected && <Check size={13} className="shrink-0 text-accent-hi" />
+        )}
       </div>
+      <p className="text-xs text-text-faint">
+        {model.costPerUnit} · {model.eta}
+        {model.badge && !disabled && <span className="ml-1 text-text-faint/80">· {model.badge}</span>}
+      </p>
     </motion.button>
   );
 }

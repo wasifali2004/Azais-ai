@@ -6,6 +6,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Clapperboard, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n/context";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -193,17 +194,19 @@ MagneticButton.displayName = "MagneticButton";
 // -------------------------------------------------------------------------
 // 3. MAIN COMPONENT
 // -------------------------------------------------------------------------
-const MarqueeItem = () => (
+const MarqueeItem = ({ items }: { items: string[] }) => (
   <div className="flex items-center space-x-12 px-6">
-    <span>Cinematic Generation</span> <span className="text-primary/60">✦</span>
-    <span>Every Model, One Studio</span> <span className="text-secondary/60">✦</span>
-    <span>Zero Watermarks</span> <span className="text-primary/60">✦</span>
-    <span>Instant Renders</span> <span className="text-secondary/60">✦</span>
-    <span>Built For Creators</span> <span className="text-primary/60">✦</span>
+    {items.map((item, index) => (
+      <span key={item} className="flex items-center gap-12">
+        <span>{item}</span>
+        <span className={index % 2 === 0 ? "text-primary/60" : "text-secondary/60"}>✦</span>
+      </span>
+    ))}
   </div>
 );
 
 export function CinematicFooter() {
+  const { t } = useLanguage();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const giantTextRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -274,14 +277,14 @@ export function CinematicFooter() {
 
           <div className="absolute top-12 left-0 w-full overflow-hidden border-y border-border/50 bg-background/60 backdrop-blur-md py-4 z-10 -rotate-2 scale-110 shadow-2xl">
             <div className="flex w-max animate-footer-scroll-marquee text-xs md:text-sm font-bold tracking-[0.3em] text-muted-foreground uppercase">
-              <MarqueeItem />
-              <MarqueeItem />
+              <MarqueeItem items={t.cinematicFooter.marquee} />
+              <MarqueeItem items={t.cinematicFooter.marquee} />
             </div>
           </div>
 
           <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 mt-20 w-full max-w-5xl mx-auto">
             <h2 ref={headingRef} className="font-display text-5xl md:text-8xl font-black footer-text-glow tracking-tighter mb-12 text-center">
-              Ready to begin?
+              {t.cinematicFooter.heading}
             </h2>
 
             <div ref={linksRef} className="flex flex-col items-center gap-6 w-full">
@@ -292,7 +295,7 @@ export function CinematicFooter() {
                   className="footer-glass-pill px-10 py-5 rounded-full text-foreground font-bold text-sm md:text-base flex items-center gap-3 group"
                 >
                   <Sparkles className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-                  Start Free — 8 Credits
+                  {t.cinematicFooter.ctaStart}
                 </MagneticButton>
 
                 <MagneticButton
@@ -301,19 +304,19 @@ export function CinematicFooter() {
                   className="footer-glass-pill px-10 py-5 rounded-full text-foreground font-bold text-sm md:text-base flex items-center gap-3 group"
                 >
                   <Clapperboard className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-                  Explore the Studio
+                  {t.cinematicFooter.ctaExplore}
                 </MagneticButton>
               </div>
 
               <div className="flex flex-wrap justify-center gap-3 md:gap-6 w-full mt-2">
                 <MagneticButton as="a" href="/" className="footer-glass-pill px-6 py-3 rounded-full text-muted-foreground font-medium text-xs md:text-sm hover:text-foreground">
-                  Privacy Policy
+                  {t.cinematicFooter.privacy}
                 </MagneticButton>
                 <MagneticButton as="a" href="/" className="footer-glass-pill px-6 py-3 rounded-full text-muted-foreground font-medium text-xs md:text-sm hover:text-foreground">
-                  Terms of Service
+                  {t.cinematicFooter.terms}
                 </MagneticButton>
                 <MagneticButton as="a" href="/" className="footer-glass-pill px-6 py-3 rounded-full text-muted-foreground font-medium text-xs md:text-sm hover:text-foreground">
-                  Support
+                  {t.cinematicFooter.support}
                 </MagneticButton>
               </div>
             </div>
@@ -321,13 +324,13 @@ export function CinematicFooter() {
 
           <div className="relative z-20 w-full pb-8 px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="text-muted-foreground text-[10px] md:text-xs font-semibold tracking-widest uppercase order-2 md:order-1">
-              © 2026 AzaisAi. All rights reserved.
+              © 2026 AzaisAi. {t.cinematicFooter.rights}
             </div>
 
             <div className="footer-glass-pill px-6 py-3 rounded-full flex items-center gap-2 order-1 md:order-2 cursor-default border-border/50">
-              <span className="text-muted-foreground text-[10px] md:text-xs font-bold uppercase tracking-widest">Crafted with</span>
+              <span className="text-muted-foreground text-[10px] md:text-xs font-bold uppercase tracking-widest">{t.cinematicFooter.craftedWith}</span>
               <span className="animate-footer-heartbeat text-sm md:text-base text-foreground">❤</span>
-              <span className="text-muted-foreground text-[10px] md:text-xs font-bold uppercase tracking-widest">by</span>
+              <span className="text-muted-foreground text-[10px] md:text-xs font-bold uppercase tracking-widest">{t.cinematicFooter.by}</span>
               <span className="text-foreground font-black text-xs md:text-sm tracking-normal ml-1">AzaisAi</span>
             </div>
 

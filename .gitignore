@@ -21,6 +21,7 @@ apps/api/src/generated/
 # logs
 *.log
 npm-debug.log*
+.agent-logs/
 
 # OS
 .DS_Store

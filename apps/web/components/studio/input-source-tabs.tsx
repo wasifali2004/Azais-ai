@@ -11,7 +11,7 @@ export function InputSourceTabs({
   onChange: (v: "text" | "image") => void;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-1.5 rounded-xl bg-surface-2 p-1.5">
+    <div className="grid grid-cols-2 gap-1 rounded-xl border border-border-soft bg-bg p-1">
       {(
         [
           { key: "text" as const, label: "Text", icon: Type },
@@ -25,7 +25,7 @@ export function InputSourceTabs({
           className={cn(
             "flex items-center justify-center gap-1.5 rounded-lg py-2.5 text-sm font-medium transition-all",
             value === tab.key
-              ? "bg-surface text-text shadow-sm"
+              ? "bg-surface-2 text-text shadow-sm"
               : "text-text-faint hover:text-text-muted",
           )}
         >

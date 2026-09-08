@@ -1,17 +1,5 @@
-"use client";
-
-import { useRouter } from "next/navigation";
-import Component from "@/components/ui/modern-login-signup";
+import { AuthUI } from "@/components/ui/auth-fuse";
 
 export default function SignupPage() {
-  const router = useRouter();
-
-  return (
-    <Component
-      initialMode="signup"
-      onToggleMode={(mode) => {
-        if (mode === "login") router.push("/login");
-      }}
-    />
-  );
+  return <AuthUI initialMode="signup" />;
 }

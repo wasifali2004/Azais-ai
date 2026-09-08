@@ -1,40 +1,51 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
+import { GridPattern } from "@/components/ui/grid-pattern";
+import { useLanguage } from "@/lib/i18n/context";
 
 export default function HeroSection() {
+  const { t } = useLanguage();
+
   return (
-    <section className="w-full bg-bg pb-28 pt-20 text-center sm:pt-28">
-      <Link
-        href="/pricing"
-        className="mx-auto flex w-max items-center gap-2 rounded-full border border-border-soft px-4 py-2 text-sm text-text-muted transition-colors hover:border-text/30 hover:text-text"
-      >
-        <span>New: Veo 3 &amp; Gen-4.5 are live</span>
-        <span className="flex items-center gap-1 font-medium text-text">
-          Read more
-          <ArrowRight size={14} />
-        </span>
-      </Link>
+    <section className="relative overflow-hidden bg-bg">
+      <GridPattern
+        width={48}
+        height={48}
+        x={-1}
+        y={-1}
+        className="mask-[radial-gradient(closest-side,white,transparent)]"
+      />
 
-      <h1 className="mx-auto mt-8 max-w-4xl px-4 text-center font-display text-4xl font-medium leading-[1.05] text-text md:text-7xl">
-        Cinematic video &amp; images, one prompt away
-      </h1>
+      <div className="relative mx-auto max-w-7xl px-5 pb-20 pt-20 text-center sm:px-8 sm:pb-28 sm:pt-28">
+        <h1
+          style={{ animationDelay: "100ms" }}
+          className="animate-fade-up mx-auto mt-7 max-w-4xl text-balance text-4xl font-semibold leading-[1.04] tracking-[-0.045em] text-text sm:text-6xl lg:text-7xl"
+        >
+          {t.hero.title}
+        </h1>
+        <p
+          style={{ animationDelay: "180ms" }}
+          className="animate-fade-up mx-auto mt-6 max-w-2xl text-balance text-base leading-7 text-text-muted sm:text-lg"
+        >
+          {t.hero.subtitle}
+        </p>
 
-      <p className="mx-auto mt-6 max-w-2xl px-4 text-center text-base text-text-muted">
-        Generate finished video and image content with every leading model in one studio — no
-        storyboard, no render farm, just the shot you had in mind.
-      </p>
-
-      <div className="mx-auto mt-8 flex w-full items-center justify-center gap-3">
-        <Button href="/signup" variant="primary" size="lg" className="gap-1.5">
-          Get Started
-        </Button>
-        <Button href="/studio/video" variant="outline" size="lg" className="gap-1.5">
-          Explore the studio
-          <ArrowRight size={16} />
-        </Button>
+        <div
+          style={{ animationDelay: "260ms" }}
+          className="animate-fade-up mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row"
+        >
+          <InteractiveHoverButton
+            href="/signup?next=/studio/image"
+            text={t.hero.ctaStart}
+            size="lg"
+            className="w-full sm:w-auto"
+          />
+          <InteractiveHoverButton href="/studio/video" text={t.hero.ctaExplore} size="lg" className="w-full sm:w-auto" />
+        </div>
+        <p style={{ animationDelay: "320ms" }} className="animate-fade-up mt-3 text-xs text-text-faint">
+          {t.hero.freeCredits}
+        </p>
       </div>
     </section>
   );

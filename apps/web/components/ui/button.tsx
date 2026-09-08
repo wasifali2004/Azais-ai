@@ -38,10 +38,10 @@ type Variant = "primary" | "secondary" | "outline" | "ghost";
 type Size = "sm" | "md" | "lg";
 
 const variantClasses: Record<Variant, string> = {
-  primary: "bg-text text-bg font-semibold shadow-sm hover:opacity-90 active:opacity-100",
+  primary: "bg-accent text-white font-semibold shadow-sm shadow-accent/15 hover:bg-accent-hi active:bg-accent",
   secondary: "bg-surface-2 text-text border border-border-soft hover:border-text/40",
-  outline: "bg-transparent text-text border border-border hover:border-text/50",
-  ghost: "bg-transparent text-text-muted hover:text-text",
+  outline: "bg-surface text-text border border-border hover:border-accent/45 hover:text-accent-hi",
+  ghost: "bg-transparent text-text-muted hover:bg-surface-2 hover:text-text",
 };
 
 const sizeClasses: Record<Size, string> = {

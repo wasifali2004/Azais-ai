@@ -16,11 +16,11 @@ export function CollapsibleSection({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="border-t border-border-soft pt-5">
+    <section className="rounded-2xl border border-border bg-bg p-4">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between text-xs font-semibold uppercase tracking-[0.1em] text-text-faint"
+        className="flex w-full items-center justify-between text-sm font-semibold text-text"
       >
         {title}
         <ChevronDown
@@ -28,7 +28,7 @@ export function CollapsibleSection({
           className={cn("transition-transform duration-200", open ? "rotate-180" : "")}
         />
       </button>
-      {open && <div className="mt-4">{children}</div>}
-    </div>
+      {open && <div className="mt-4 border-t border-border-soft pt-4">{children}</div>}
+    </section>
   );
 }

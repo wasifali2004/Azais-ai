@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   Logger,
+  ServiceUnavailableException,
   UnauthorizedException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
@@ -22,6 +23,20 @@ import type { SignupDto } from "./dto/signup.dto";
 
 function generateSixDigitCode(): string {
   return String(randomInt(0, 1_000_000)).padStart(6, "0");
+}
+
+/**
+ * Matches the error shapes Supabase's pooler produces when it drops or stalls a
+ * connection — worth one automatic retry, unlike a validation or not-found error.
+ */
+function isTransientConnectionError(err: unknown): boolean {
+  const message = err instanceof Error ? err.message : String(err);
+  return (
+    message.includes("Server has closed the connection") ||
+    message.includes("Connection terminated") ||
+    message.includes("connection timeout") ||
+    message.includes("ECONNRESET")
+  );
 }
 
 @Injectable()
@@ -166,7 +181,7 @@ export class AuthService {
 
   async login(dto: LoginDto) {
     const email = dto.email.toLowerCase().trim();
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    const user = await this.withDbRetry(() => this.prisma.user.findUnique({ where: { email } }));
 
     // Same generic message whether the email doesn't exist, the account has
     // no password (Google-only), or the password is wrong — don't leak which
@@ -194,6 +209,37 @@ export class AuthService {
    * creates a brand-new account when neither match is found.
    */
   async loginOrLinkGoogleUser(googleId: string, email: string) {
+    return this.withDbRetry(() => this.resolveGoogleUser(googleId, email));
+  }
+
+  /**
+   * Retries a DB call once after a short delay on a transient pooler
+   * connection drop (Supabase's pooler occasionally closes or stalls a
+   * connection). If it's still failing after the retry, the database isn't
+   * reachable at all right now — surface that plainly as a 503 instead of
+   * leaking a raw Prisma/pg connection error as a generic 500.
+   */
+  private async withDbRetry<T>(fn: () => Promise<T>): Promise<T> {
+    try {
+      return await fn();
+    } catch (err) {
+      if (!isTransientConnectionError(err)) throw err;
+      this.logger.warn(
+        `Retrying after a transient DB connection error: ${err instanceof Error ? err.message : String(err)}`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      try {
+        return await fn();
+      } catch (retryErr) {
+        if (!isTransientConnectionError(retryErr)) throw retryErr;
+        throw new ServiceUnavailableException(
+          "We couldn't reach the database — please try again in a moment.",
+        );
+      }
+    }
+  }
+
+  private async resolveGoogleUser(googleId: string, email: string) {
     const normalizedEmail = email.toLowerCase().trim();
 
     const byGoogleId = await this.prisma.user.findUnique({ where: { googleId } });

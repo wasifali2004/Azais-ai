@@ -1,109 +1,50 @@
-"use client";
-
-import {
-  ContainerAnimated,
-  ContainerScroll,
-  ContainerStagger,
-  ContainerSticky,
-  GalleryCol,
-  GalleryContainer,
-} from "@/components/ui/animated-gallery";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, Clapperboard } from "lucide-react";
-
-/**
- * Same two real showcase stills (cropped from /recon) repeated across the
- * gallery — deliberately not a set of unrelated stock photos. Swap these
- * paths for more generated examples as they become available.
- */
-const IMAGES_1 = [
-  "/showcase/sample-video-1.jpg",
-  "/showcase/sample-image-1.jpg",
-  "/showcase/sample-video-1.jpg",
-  "/showcase/sample-image-1.jpg",
-];
-const IMAGES_2 = [
-  "/showcase/sample-image-1.jpg",
-  "/showcase/sample-video-1.jpg",
-  "/showcase/sample-image-1.jpg",
-  "/showcase/sample-video-1.jpg",
-];
-const IMAGES_3 = [
-  "/showcase/sample-video-1.jpg",
-  "/showcase/sample-image-1.jpg",
-  "/showcase/sample-video-1.jpg",
-  "/showcase/sample-image-1.jpg",
-];
+import { ArrowUpRight, Clapperboard, ImageIcon } from "lucide-react";
+import { SHOWCASE_ITEMS } from "@/lib/media";
 
 export function GenerationGallery() {
   return (
-    <div className="relative bg-background text-foreground">
-      <ContainerStagger className="relative z-[9999] -mb-12 place-self-center px-6 pt-12 text-center">
-        <ContainerAnimated>
-          <h2 className="font-display text-4xl font-medium md:text-5xl">
-            Your <span className="italic text-accent">one studio</span>
-          </h2>
-        </ContainerAnimated>
-        <ContainerAnimated>
-          <h2 className="font-display text-4xl font-medium md:text-5xl">for every generation</h2>
-        </ContainerAnimated>
-
-        <ContainerAnimated className="my-4">
-          <p className="leading-normal tracking-tight text-text-faint">
-            No storyboard, no render farm, no wasted credits — just the frame
-            <br /> you had in mind, generated in one place.
+    <section className="bg-bg py-20 sm:py-28" aria-labelledby="showcase-title">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-accent">Made in AzaisAi</p>
+            <h2 id="showcase-title" className="mt-3 max-w-xl text-3xl font-semibold tracking-[-0.035em] text-text sm:text-5xl">
+              One workspace, every frame.
+            </h2>
+          </div>
+          <p className="max-w-md text-sm leading-6 text-text-muted">
+            Move between still images and motion without changing tools or losing your creative flow.
           </p>
-        </ContainerAnimated>
+        </div>
 
-        <ContainerAnimated className="flex items-center justify-center gap-2">
-          <Button href="/signup" variant="primary" size="md" className="gap-1.5">
-            Start free <ArrowRight className="size-4" />
-          </Button>
-          <Button href="/pricing" variant="ghost" size="md" className="gap-1.5">
-            <Clapperboard className="size-4" /> View pricing
-          </Button>
-        </ContainerAnimated>
-      </ContainerStagger>
-
-      <ContainerScroll className="relative h-[350vh]">
-        <ContainerSticky className="h-svh">
-          <GalleryContainer>
-            <GalleryCol yRange={["-10%", "2%"]} className="-mt-2">
-              {IMAGES_1.map((imageUrl, index) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  key={index}
-                  className="aspect-video block h-auto max-h-full w-full rounded-md object-cover shadow"
-                  src={imageUrl}
-                  alt="AzaisAi generation example"
-                />
-              ))}
-            </GalleryCol>
-            <GalleryCol className="mt-[-50%]" yRange={["15%", "5%"]}>
-              {IMAGES_2.map((imageUrl, index) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  key={index}
-                  className="aspect-video block h-auto max-h-full w-full rounded-md object-cover shadow"
-                  src={imageUrl}
-                  alt="AzaisAi generation example"
-                />
-              ))}
-            </GalleryCol>
-            <GalleryCol yRange={["-10%", "2%"]} className="-mt-2">
-              {IMAGES_3.map((imageUrl, index) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  key={index}
-                  className="aspect-video block h-auto max-h-full w-full rounded-md object-cover shadow"
-                  src={imageUrl}
-                  alt="AzaisAi generation example"
-                />
-              ))}
-            </GalleryCol>
-          </GalleryContainer>
-        </ContainerSticky>
-      </ContainerScroll>
-    </div>
+        <div className="mt-10 grid gap-5 lg:grid-cols-2">
+          {SHOWCASE_ITEMS.map((item, index) => (
+            <article key={item.id} className="group overflow-hidden rounded-2xl border border-border bg-surface p-2 shadow-sm">
+              <div className="relative aspect-[16/10] overflow-hidden rounded-xl bg-canvas">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={item.src} alt={item.prompt} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.02]" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5 text-left">
+                  <div>
+                    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-blue-300">
+                      {index === 0 ? <Clapperboard size={12} /> : <ImageIcon size={12} />}
+                      {index === 0 ? "Video" : "Image"} example
+                    </span>
+                    <p className="mt-1 line-clamp-2 max-w-lg text-sm leading-5 text-white/85">{item.prompt}</p>
+                  </div>
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm">
+                    <ArrowUpRight size={16} />
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between px-3 py-3 text-xs">
+                <span className="font-medium text-text">{item.model}</span>
+                <span className="text-text-faint">Ready to replace with your media</span>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }

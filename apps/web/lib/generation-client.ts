@@ -1,6 +1,6 @@
-import { getSession, readErrorMessage, type Session } from "@/lib/auth-client";
+import { getSession, readErrorMessage, updateStoredCredits, type Session } from "@/lib/auth-client";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
 export type GenerationType = "IMAGE" | "VIDEO";
 export type GenerationStatus = "PENDING" | "COMPLETE" | "FAILED";
@@ -142,6 +142,7 @@ export async function getCreditsBalance(): Promise<number> {
     throw new Error(await readErrorMessage(res, "Could not load credit balance"));
   }
   const data = (await res.json()) as { balance: number };
+  updateStoredCredits(data.balance);
   return data.balance;
 }
 
