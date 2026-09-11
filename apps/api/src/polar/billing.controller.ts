@@ -3,11 +3,8 @@ import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { Public } from "../common/decorators/public.decorator";
 import type { AuthenticatedUser } from "../auth/types/authenticated-user.interface";
 import { CreateCheckoutDto } from "./dto/create-checkout.dto";
+import { isDevSkipPaymentEnabled } from "./polar.config";
 import { PolarService } from "./polar.service";
-
-function isDevSkipPaymentEnabled(): boolean {
-  return process.env.DEV_SKIP_PAYMENT === "true";
-}
 
 @Controller("billing")
 export class BillingController {
@@ -20,7 +17,10 @@ export class BillingController {
   @Public()
   @Get("config")
   getConfig() {
-    return { devSkipPayment: isDevSkipPaymentEnabled() };
+    return {
+      devSkipPayment: isDevSkipPaymentEnabled(),
+      checkoutEnvironment: this.polarService.checkoutEnvironment,
+    };
   }
 
   /** Requires a valid JWT (global guard) — not marked @Public(). */

@@ -1,11 +1,13 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger, ServiceUnavailableException } from "@nestjs/common";
 import { Polar } from "@polar-sh/sdk";
 import type { Subscription } from "@polar-sh/sdk/models/components/subscription.js";
 import type { WebhookSubscriptionActivePayload } from "@polar-sh/sdk/models/components/webhooksubscriptionactivepayload.js";
+import { isDeployedEnvironment } from "../common/environment";
 import type { PlanTier } from "../generated/prisma/enums";
 import { CreditsService } from "../credits/credits.service";
 import { PrismaService } from "../prisma/prisma.service";
 import type { SubscribableTier } from "./dto/create-checkout.dto";
+import { getPolarServer, polarRequestOptions, type PolarServer } from "./polar.config";
 
 /** Only paid tiers have a Polar product and a row in the `Plan` table. */
 const PLAN_NAME_BY_TIER: Record<SubscribableTier, string> = {
@@ -18,6 +20,7 @@ const PLAN_NAME_BY_TIER: Record<SubscribableTier, string> = {
 export class PolarService {
   private readonly logger = new Logger(PolarService.name);
   private readonly client: Polar;
+  readonly checkoutEnvironment: PolarServer;
   private readonly productIdByTier: Record<SubscribableTier, string | undefined>;
   private readonly tierByProductId: Map<string, SubscribableTier>;
 
@@ -25,10 +28,26 @@ export class PolarService {
     private readonly prisma: PrismaService,
     private readonly creditsService: CreditsService,
   ) {
+    this.checkoutEnvironment = getPolarServer();
     this.client = new Polar({
       accessToken: process.env.POLAR_ACCESS_TOKEN,
-      server: process.env.POLAR_SERVER === "production" ? "production" : "sandbox",
+      server: this.checkoutEnvironment,
     });
+
+    if (
+      isDeployedEnvironment() &&
+      process.env.POLAR_SERVER?.trim().toLowerCase() === "sandbox" &&
+      this.checkoutEnvironment === "production"
+    ) {
+      this.logger.warn(
+        "Ignoring POLAR_SERVER=sandbox on a deployment; using Polar production. " +
+          "Set ALLOW_POLAR_SANDBOX_ON_DEPLOYMENT=true only for intentional staging.",
+      );
+    }
+
+    if (isDeployedEnvironment() && process.env.DEV_SKIP_PAYMENT === "true") {
+      this.logger.warn("Ignoring DEV_SKIP_PAYMENT=true on a deployment");
+    }
 
     this.productIdByTier = {
       STARTER: process.env.POLAR_STARTER_PRODUCT_ID,
@@ -48,6 +67,8 @@ export class PolarService {
     user: { id: string; email: string },
     tier: SubscribableTier,
   ): Promise<string> {
+    this.assertAccessTokenConfigured();
+
     const productId = this.productIdByTier[tier];
     if (!productId) {
       throw new Error(`No Polar product id configured for tier ${tier} (check .env)`);
@@ -55,17 +76,30 @@ export class PolarService {
 
     const frontendUrl = (process.env.FRONTEND_URL ?? "http://localhost:3000").replace(/\/+$/, "");
 
-    const checkout = await this.client.checkouts.create({
-      products: [productId],
-      customerEmail: user.email,
-      // First-class field for cross-system identity — read back as
-      // subscription.customer.externalId in the webhook handler below.
-      externalCustomerId: user.id,
-      successUrl: `${frontendUrl}/billing/success?checkout_id={CHECKOUT_ID}`,
-      // Belt-and-suspenders: also copied onto the resulting subscription's
-      // metadata, in case externalCustomerId is ever unavailable.
-      metadata: { userId: user.id },
-    });
+    let checkout;
+    try {
+      checkout = await this.client.checkouts.create(
+        {
+          products: [productId],
+          customerEmail: user.email,
+          // First-class field for cross-system identity — read back as
+          // subscription.customer.externalId in the webhook handler below.
+          externalCustomerId: user.id,
+          successUrl: `${frontendUrl}/billing/success?checkout_id={CHECKOUT_ID}`,
+          // Belt-and-suspenders: also copied onto the resulting subscription's
+          // metadata, in case externalCustomerId is ever unavailable.
+          metadata: { userId: user.id },
+        },
+        polarRequestOptions(),
+      );
+    } catch (error) {
+      this.logger.error(
+        `Polar ${this.checkoutEnvironment} checkout creation failed: ${this.describeError(error)}`,
+      );
+      throw new ServiceUnavailableException(
+        "Payment checkout is temporarily unavailable. Please try again shortly.",
+      );
+    }
 
     return checkout.url;
   }
@@ -131,7 +165,11 @@ export class PolarService {
    * what stops one user from claiming another's checkout by guessing its id.
    */
   async verifyAndGrantCheckout(checkoutId: string, user: { id: string; email: string }): Promise<SubscribableTier> {
-    const checkout = await this.client.checkouts.get({ id: checkoutId });
+    this.assertAccessTokenConfigured();
+    const checkout = await this.client.checkouts.get(
+      { id: checkoutId },
+      polarRequestOptions(),
+    );
 
     if (checkout.status !== "succeeded") {
       throw new Error(`Checkout has not completed yet (status: ${checkout.status})`);
@@ -180,6 +218,42 @@ export class PolarService {
       `DEV_SKIP_PAYMENT bypass: granting ${tier} to user ${userId} with no real Polar payment`,
     );
     await this.applyPlanUpgrade(userId, tier);
+  }
+
+  private assertAccessTokenConfigured(): void {
+    const accessToken = process.env.POLAR_ACCESS_TOKEN?.trim();
+    if (
+      accessToken &&
+      !accessToken.startsWith("polar_ci_") &&
+      !accessToken.startsWith("polar_cs_")
+    ) {
+      return;
+    }
+
+    if (
+      accessToken?.startsWith("polar_ci_") ||
+      accessToken?.startsWith("polar_cs_") ||
+      process.env.POLAR_CLIENT_ID ||
+      process.env.POLAR_CLIENT_SECRET
+    ) {
+      throw new Error(
+        "Polar OAuth client credentials cannot authorize checkout requests. " +
+          "Create a production Organization Access Token and set it as POLAR_ACCESS_TOKEN.",
+      );
+    }
+
+    throw new Error(
+      "POLAR_ACCESS_TOKEN is not configured. Create a production Organization Access Token in Polar.",
+    );
+  }
+
+  private describeError(error: unknown): string {
+    if (!(error instanceof Error)) {
+      return String(error);
+    }
+
+    const statusCode = (error as Error & { statusCode?: number }).statusCode;
+    return `${error.name}${statusCode ? ` (${statusCode})` : ""}: ${error.message}`;
   }
 
   private async applyPlanUpgrade(

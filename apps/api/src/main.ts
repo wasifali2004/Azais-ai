@@ -7,6 +7,7 @@ import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import helmet from "helmet";
 import { AppModule } from "./app.module";
+import { isDeployedEnvironment } from "./common/environment";
 
 /**
  * FRONTEND_URL silently falls back to "http://localhost:3000" everywhere
@@ -21,11 +22,7 @@ import { AppModule } from "./app.module";
  * regardless of NODE_ENV — as proof this isn't a local dev run.
  */
 function assertFrontendUrlConfigured() {
-  const isDeployed =
-    process.env.NODE_ENV === "production" ||
-    Object.keys(process.env).some((key) => key.startsWith("RAILWAY_"));
-
-  if (isDeployed && !process.env.FRONTEND_URL) {
+  if (isDeployedEnvironment() && !process.env.FRONTEND_URL) {
     // eslint-disable-next-line no-console
     console.error(
       "FATAL: FRONTEND_URL is not set on this deployment. This would " +

@@ -111,10 +111,11 @@ Open `http://localhost:3000`.
 | `JWT_ACCESS_SECRET` | Signing secret for session JWTs — use a long random value, never reuse the dev default |
 | `JWT_ACCESS_TTL` | Session lifetime (e.g. `30d`) — there's no refresh-token flow, so this is the whole session |
 | `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_STORAGE_BUCKET` | Supabase Storage for generated media — service role key, never the anon key |
-| `POLAR_ACCESS_TOKEN` / `POLAR_WEBHOOK_SECRET` | Polar API credentials — see [Known limitations](#known-limitations--dev-shortcuts) |
-| `POLAR_SERVER` | `"sandbox"` or `"production"` |
+| `POLAR_ACCESS_TOKEN` / `POLAR_WEBHOOK_SECRET` | Polar production Organization Access Token and webhook signing secret — OAuth client ID/secret are not substitutes |
+| `POLAR_SERVER` | `"sandbox"` or `"production"`; deployments default to and enforce production |
 | `POLAR_STARTER_PRODUCT_ID` / `POLAR_PRO_PRODUCT_ID` / `POLAR_BUSINESS_PRODUCT_ID` | Polar product IDs — sandbox and production have different IDs for the same product |
 | `DEV_SKIP_PAYMENT` | Dev-only bypass, see below — must be `false`/unset in production |
+| `ALLOW_POLAR_SANDBOX_ON_DEPLOYMENT` | Optional staging-only escape hatch; set `true` to permit Polar Sandbox on a deployed instance |
 | `PORT` | API port (defaults to `4000`) |
 | `CORS_ORIGIN` | Comma-separated list of allowed frontend origins, no trailing slashes |
 | `FRONTEND_URL` | The deployed **frontend's** URL — used to build OAuth/billing redirect targets. This is a backend-only variable; don't confuse it with `NEXT_PUBLIC_API_URL` below, which is the opposite direction and lives on the frontend |
@@ -163,8 +164,8 @@ the same points apply to any two-service host):
 
 - **Polar billing is fully wired** (dynamic checkout session creation,
   webhook signature verification, and a webhook-free checkout-verification
-  path) but needs real `POLAR_ACCESS_TOKEN` / `POLAR_WEBHOOK_SECRET` values
-  before it can talk to Polar for real.
+  path). Live checkout requires a production `POLAR_ACCESS_TOKEN`;
+  `POLAR_WEBHOOK_SECRET` is additionally required only when using webhooks.
 - Until those are set, `DEV_SKIP_PAYMENT=true` bypasses the real Polar API
   call in `POST /billing/checkout`: it grants the chosen plan's credits and
   updates the user's `planTier` immediately, as if checkout had already
@@ -173,5 +174,13 @@ the same points apply to any two-service host):
   it's active (`GET /billing/config` exposes the flag so the frontend never
   has to guess). Set `DEV_SKIP_PAYMENT=false` (or remove it) once real Polar
   credentials are configured; never enable it in production.
+- Polar OAuth application credentials (`POLAR_CLIENT_ID` /
+  `POLAR_CLIENT_SECRET`) are for an authorization-code flow on behalf of Polar
+  users. This app creates checkout sessions for its own organization, so it
+  uses a production Organization Access Token in `POLAR_ACCESS_TOKEN` instead.
+  The token needs the `checkouts:write` scope (which also permits reading a
+  completed checkout for the success-page verification used here).
+- The API sends `Polar-Version: 2026-04` on checkout create/get requests so the
+  response contract does not change when Polar rotates its default API version.
 - There's no refresh-token flow — `JWT_ACCESS_TTL` is the entire session
   lifetime.
