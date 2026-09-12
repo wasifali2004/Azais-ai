@@ -1,13 +1,14 @@
 import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import type { AuthenticatedUser } from "../auth/types/authenticated-user.interface";
 import { CreditsService } from "../credits/credits.service";
-import type { GeneratedMedia } from "../gemini/gemini.service";
 import { GeminiService } from "../gemini/gemini.service";
 import type { PlanTier } from "../generated/prisma/enums";
 import { PrismaService } from "../prisma/prisma.service";
+import { RunwareService } from "../runware/runware.service";
 import { StorageService } from "../storage/storage.service";
 import type { EnhancePromptDto } from "./dto/enhance-prompt.dto";
 import type { GenerateDto } from "./dto/generate.dto";
+import type { GeneratedMedia } from "./generated-media.interface";
 import {
   ALLOWED_VIDEO_DURATIONS,
   computeCreditsCost,
@@ -31,22 +32,56 @@ const ENHANCE_INSTRUCTIONS: Record<"enhance" | "variation", (noun: string) => st
     `and intent but varying the wording and descriptive details. Reply with only the rewritten prompt, no preamble or quotes.\n\nPrompt: `,
 };
 
-const GENERATION_TIMEOUT_MS = 2 * 60 * 1000;
+const GEMINI_GENERATION_TIMEOUT_MS = 2 * 60 * 1000;
+const RUNWARE_IMAGE_TIMEOUT_MS = 2 * 60 * 1000;
+const RUNWARE_VIDEO_TIMEOUT_MS = 6 * 60 * 1000;
 
-function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<T>((_, reject) =>
-      setTimeout(() => reject(new Error(`Generation timed out after ${ms}ms`)), ms),
-    ),
-  ]);
+async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timeout = setTimeout(() => reject(new Error(`Generation timed out after ${ms}ms`)), ms);
+      }),
+    ]);
+  } finally {
+    if (timeout) clearTimeout(timeout);
+  }
 }
 
 /** Google returns this for a Gemini API key whose project has no billing account — image/video
  * models are billing-gated, so this is a hard block, not a transient rate limit. Worth telling
  * the user the truth instead of "try again", since retrying can't possibly help. */
 function isQuotaExhaustedError(technicalMessage: string): boolean {
-  return /RESOURCE_EXHAUSTED|quota exceeded/i.test(technicalMessage);
+  return /RESOURCE_EXHAUSTED|quota (?:has been )?exceeded|rate.?limit|too many requests|\b429\b/i.test(
+    technicalMessage,
+  );
+}
+
+function errorDetails(error: unknown): string {
+  if (!(error instanceof Error)) return String(error);
+
+  const values: unknown[] = [error.name, error.message];
+  const record = error as Error & Record<string, unknown>;
+  values.push(record.status, record.statusCode, record.code);
+
+  const nested = record.error;
+  if (nested && typeof nested === "object") {
+    const nestedRecord = nested as Record<string, unknown>;
+    values.push(nestedRecord.status, nestedRecord.statusCode, nestedRecord.code, nestedRecord.message);
+  }
+  return values.filter((value) => value !== undefined).join(" ");
+}
+
+function shouldUseRunwareFallback(error: unknown): boolean {
+  const details = errorDetails(error);
+  return (
+    isQuotaExhaustedError(details) ||
+    /GEMINI_API_KEY is missing|\b(?:500|502|503|504)\b|service unavailable|temporarily unavailable|overloaded|UNAVAILABLE/i.test(
+      details,
+    )
+  );
 }
 
 function safeUserMessage(type: "IMAGE" | "VIDEO", technicalMessage: string): string {
@@ -86,6 +121,7 @@ export class GenerationService {
     private readonly prisma: PrismaService,
     private readonly credits: CreditsService,
     private readonly gemini: GeminiService,
+    private readonly runware: RunwareService,
     private readonly storage: StorageService,
   ) {}
 
@@ -140,6 +176,37 @@ export class GenerationService {
     return this.gemini.generateVideo(dto.prompt, config.geminiModel, durationSeconds, aspectRatio);
   }
 
+  private async callRunware(dto: GenerateDto): Promise<GeneratedMedia> {
+    const aspectRatio = dto.settings?.aspectRatio ?? (dto.type === "IMAGE" ? "1:1" : "16:9");
+    if (dto.type === "IMAGE") {
+      return this.runware.generateImage(dto.prompt, aspectRatio);
+    }
+
+    const durationSeconds = dto.settings?.durationSeconds ?? ALLOWED_VIDEO_DURATIONS[0];
+    return this.runware.generateVideo(dto.prompt, durationSeconds, aspectRatio);
+  }
+
+  private async generateMedia(dto: GenerateDto): Promise<GeneratedMedia> {
+    try {
+      return await withTimeout(this.callGemini(dto), GEMINI_GENERATION_TIMEOUT_MS);
+    } catch (geminiError) {
+      if (!shouldUseRunwareFallback(geminiError)) throw geminiError;
+
+      const geminiMessage = errorDetails(geminiError);
+      this.logger.warn(`Gemini unavailable (${geminiMessage}); using Runware fallback`);
+      const fallbackTimeout =
+        dto.type === "VIDEO" ? RUNWARE_VIDEO_TIMEOUT_MS : RUNWARE_IMAGE_TIMEOUT_MS;
+
+      try {
+        return await withTimeout(this.callRunware(dto), fallbackTimeout);
+      } catch (runwareError) {
+        throw new Error(
+          `Gemini unavailable: ${geminiMessage}; Runware fallback failed: ${errorDetails(runwareError)}`,
+        );
+      }
+    }
+  }
+
   private async processGeneration(
     generationId: string,
     userId: string,
@@ -147,7 +214,7 @@ export class GenerationService {
     creditsCost: number,
   ): Promise<void> {
     try {
-      const media = await withTimeout(this.callGemini(dto), GENERATION_TIMEOUT_MS);
+      const media = await this.generateMedia(dto);
       const key = `generations/${userId}/${generationId}.${extensionFor(media.mimeType)}`;
       const outputUrl = await this.storage.uploadBuffer(media.buffer, key, media.mimeType);
 

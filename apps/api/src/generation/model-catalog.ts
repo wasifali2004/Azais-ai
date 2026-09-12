@@ -1,11 +1,10 @@
 import type { PlanTier } from "../generated/prisma/enums";
 
 /**
- * Pricing matches the recon pricing/studio screenshots. Only a Gemini API
- * key is configured, so every model — including labels for providers we
- * don't have keys for (GPT Image, Runway's Gen-4/Gen-3 line) — actually
- * executes against a real Gemini/Veo model under the hood. Billing stays
- * per the label's advertised rate regardless of which Gemini model serves it.
+ * Pricing matches the recon pricing/studio screenshots. Each UI model maps
+ * to a Gemini/Veo model first. Runware is the shared fallback when Gemini is
+ * rate-limited or temporarily unavailable; billing remains based on the UI
+ * model selected by the user.
  */
 
 export type ModelTier = "FREE" | "PAID";

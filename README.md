@@ -14,7 +14,7 @@ site, the generation studio, auth, billing, and the API behind all of it.
 | Database | Postgres (Supabase) |
 | Storage  | Supabase Storage (generated images/videos) |
 | Auth     | JWT (Passport) + Google OAuth, Resend for transactional email |
-| AI       | Google Gemini (`@google/genai`) for generation |
+| AI       | Google Gemini (`@google/genai`) with Runware fallback for generation |
 | Billing  | Polar.sh (checkout, subscriptions, credits) |
 
 ## Features
@@ -107,7 +107,9 @@ Open `http://localhost:3000`.
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth client credentials |
 | `GOOGLE_CALLBACK_URL` | Must be `https://<your-api-domain>/auth/google/callback` and match an Authorized Redirect URI in the Google Cloud Console exactly — Google redirects here directly, not through the frontend |
 | `RESEND_API_KEY` / `RESEND_FROM_EMAIL` | Transactional email for verification codes |
-| `GEMINI_API_KEY` | Google Gemini API key used for generation calls |
+| `GEMINI_API_KEY` | Google Gemini API key used as the primary generation provider |
+| `RUNWARE_API_KEY` | Runware API key used only when Gemini is rate-limited, unconfigured, or temporarily unavailable |
+| `RUNWARE_IMAGE_MODEL` / `RUNWARE_VIDEO_MODEL` | Optional Runware model overrides; defaults are `runware:101@1` and `pixverse:1@2` |
 | `JWT_ACCESS_SECRET` | Signing secret for session JWTs — use a long random value, never reuse the dev default |
 | `JWT_ACCESS_TTL` | Session lifetime (e.g. `30d`) — there's no refresh-token flow, so this is the whole session |
 | `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_STORAGE_BUCKET` | Supabase Storage for generated media — service role key, never the anon key |

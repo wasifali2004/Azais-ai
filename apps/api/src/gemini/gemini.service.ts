@@ -3,11 +3,7 @@ import { GoogleGenAI, Modality } from "@google/genai";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-
-export interface GeneratedMedia {
-  buffer: Buffer;
-  mimeType: string;
-}
+import type { GeneratedMedia } from "../generation/generated-media.interface";
 
 const VIDEO_POLL_INTERVAL_MS = 10_000;
 const VIDEO_POLL_MAX_ATTEMPTS = 18; // safety cap; the caller enforces the real 2-minute budget
